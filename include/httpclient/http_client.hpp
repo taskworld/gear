@@ -5,19 +5,20 @@
 
 #include "http_request.hpp"
 #include "http_response.hpp"
+#include "http_config.hpp"
 
 using namespace std;
 using namespace std::experimental;
 
 using completion_handler =
-    function<void(const gear::http_request&, const gear::http_response&)>;
+    function<void(const gear::http_request, const gear::http_response)>;
 
 namespace gear {
 
 class http_client final {
  public:
-  http_client();
   http_client(const string& uri);
+  http_client(http_config config);
   ~http_client();
 
   string host() const;
@@ -29,9 +30,8 @@ class http_client final {
   http_method method() const;
   http_client& method(const http_method& method);
 
-  vector<pair<string, string>> headers() const;
-  http_client& headers(const vector<pair<string, string>>& headers);
-  http_client& add_header(const pair<string, string>& header);
+  unordered_map<string, string> headers() const;
+  http_client& headers(const unordered_map<string, string>& headers);
   http_client& add_header(const string& key, const string& value);
 
   string body() const;
@@ -52,12 +52,15 @@ class http_client final {
   void execute(const completion_handler& handler);
 
  private:
+  http_client();
   void reset();
   void run();
+  void set_config_to_request();
 
   asio::io_context _io_context;
   asio::ssl::context _ssl_context;
   http_request _request;
+  http_config _config;
   class impl;
   unique_ptr<impl> _pimpl;
 

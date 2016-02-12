@@ -8,7 +8,7 @@ namespace gear {
 class http_client::impl {
  public:
   impl(asio::io_context& io_context, asio::ssl::context& context,
-       const gear::http_request& request, completion_handler handler)
+       const gear::http_request request, completion_handler handler)
       : _socket(io_context, context),
         _resolver(io_context),
         _request(request),
@@ -139,7 +139,7 @@ class http_client::impl {
     }
   }
 
-  void handle_error(const error_code& error){
+  void handle_error(const error_code& error) {
     _response.message(error.message());
     _response.code(error.value());
     _handler(_request, _response);
@@ -186,6 +186,7 @@ class http_client::impl {
     set_headers_to_stream(os);
     os << "\r\n";
     os << body;
+    cout << os.str() << endl;
     return os.str();
   }
 
@@ -205,7 +206,8 @@ class http_client::impl {
         } else {
           os << "&";
         }
-        os << gear_utils::encode_url(query.first) + "=" + gear_utils::encode_url(query.second);
+        os << gear_utils::encode_url(query.first) + "=" +
+                  gear_utils::encode_url(query.second);
       }
     }
   }
@@ -220,12 +222,18 @@ class http_client::impl {
   completion_handler _handler;
 };
 
-http_client::http_client() : http_client("") {}
-
-http_client::http_client(const string& uri)
-    : _ssl_context(asio::ssl::context::sslv23) {
-  _request.host(uri);
+http_client::http_client() : _ssl_context(asio::ssl::context::sslv23) {
   _ssl_context.set_default_verify_paths();
+}
+
+http_client::http_client(const string& uri) : http_client() {
+  _config.host(uri);
+  set_config_to_request();
+}
+
+http_client::http_client(http_config config) : http_client() {
+  _config = config;
+  set_config_to_request();
 }
 
 http_client::~http_client() {
@@ -240,6 +248,18 @@ void http_client::run() {
 void http_client::execute(const http_request& request_execute,
                           const completion_handler& handler) {
   _request = request_execute;
+  if (_request.host() == "") {
+    _request.host(_config.host());
+  }
+  if (_config.base_path() != "") {
+    _request.path(_config.base_path() + _request.path());
+  }
+  for (auto header : _config.base_headers()) {
+    _request.add_header(header.first, header.second);
+  }
+  for (auto query : _config.base_queries()) {
+    _request.add_query(query.first, query.second);
+  }
   execute(handler);
 }
 
@@ -247,12 +267,21 @@ void http_client::execute(const completion_handler& handler) {
   reset();
   _pimpl = impl::execute(_io_context, _ssl_context, _request, handler);
   _thread = make_unique<thread>(&http_client::run, this);
+  _request = gear::http_request();
+  set_config_to_request();
 }
 
 void http_client::reset() {
   if (_thread) {
     _thread->join();
   }
+}
+
+void http_client::set_config_to_request() {
+  _request.host(_config.host())
+      .path(_config.base_path())
+      .headers(_config.base_headers())
+      .queries(_config.base_queries());
 }
 
 void http_client::http_get(const completion_handler& handler) {
@@ -284,6 +313,7 @@ void http_client::http_patch(const completion_handler& handler) {
 string http_client::host() const { return _request.host(); }
 
 http_client& http_client::host(const string& host) {
+  _config.host(host);
   _request.host(host);
   return *this;
 }
@@ -291,13 +321,14 @@ http_client& http_client::host(const string& host) {
 string http_client::path() const { return _request.path(); }
 
 http_client& http_client::path(const string& path) {
-  _request.path(path);
+  if (_config.base_path() == "")
+    _request.path(path);
+  else
+    _request.path(_config.base_path() + path);
   return *this;
 }
 
-http_method http_client::method() const {
-  return _request.method();
-}
+http_method http_client::method() const { return _request.method(); }
 
 http_client& http_client::method(const http_method& method) {
   _request.method(method);
@@ -305,17 +336,13 @@ http_client& http_client::method(const http_method& method) {
   return *this;
 }
 
-vector<pair<string, string>> http_client::headers() const {
+unordered_map<string, string> http_client::headers() const {
   return _request.headers();
 }
 
-http_client& http_client::headers(const vector<pair<string, string>>& headers) {
+http_client& http_client::headers(
+    const unordered_map<string, string>& headers) {
   _request.headers(headers);
-  return *this;
-}
-
-http_client& http_client::add_header(const pair<string, string>& header) {
-  _request.add_header(header);
   return *this;
 }
 

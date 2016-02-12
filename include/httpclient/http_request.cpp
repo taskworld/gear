@@ -26,21 +26,15 @@ http_request& http_request::method(const http_method& method) {
   return *this;
 }
 
-vector<pair<string, string>> http_request::headers() const { return _headers; }
+unordered_map<string, string> http_request::headers() const { return _headers; }
 
-http_request& http_request::headers(
-    const vector<pair<string, string>>& headers) {
+http_request& http_request::headers(unordered_map<string, string> headers) {
   _headers = headers;
   return *this;
 }
 
-http_request& http_request::add_header(const pair<string, string>& header) {
-  _headers.push_back(header);
-  return *this;
-}
-
 http_request& http_request::add_header(const string& key, const string& value) {
-  _headers.push_back(make_pair(key, value));
+  _headers[key] =  value;
   return *this;
 }
 
@@ -52,8 +46,8 @@ http_request& http_request::body(const string& parameters) {
 }
 
 vector<pair<string, string>> http_request::queries() const { return _queries; }
-http_request& http_request::queries(
-    const vector<pair<string, string>>& queries) {
+
+http_request& http_request::queries(vector<pair<string, string>> queries) {
   _queries = queries;
   return *this;
 }
