@@ -8,7 +8,7 @@ namespace gear {
 class http_client::impl {
  public:
   impl(asio::io_context& io_context, asio::ssl::context& context,
-       const gear::http_request request, completion_handler handler)
+       const http_request request, completion_handler handler)
       : _socket(io_context, context),
         _resolver(io_context),
         _request(request),
@@ -186,7 +186,6 @@ class http_client::impl {
     set_headers_to_stream(os);
     os << "\r\n";
     os << body;
-    cout << os.str() << endl;
     return os.str();
   }
 
@@ -248,12 +247,13 @@ void http_client::run() {
 void http_client::execute(const http_request& request_execute,
                           const completion_handler& handler) {
   _request = request_execute;
-  if (_request.host() == "") {
+  if (_request.host().empty()) {
     _request.host(_config.host());
   }
-  if (_config.base_path() != "") {
+  if (!_config.base_path().empty()) {
     _request.path(_config.base_path() + _request.path());
   }
+
   for (auto header : _config.base_headers()) {
     _request.add_header(header.first, header.second);
   }
@@ -321,7 +321,7 @@ http_client& http_client::host(const string& host) {
 string http_client::path() const { return _request.path(); }
 
 http_client& http_client::path(const string& path) {
-  if (_config.base_path() == "")
+  if (_config.base_path().empty())
     _request.path(path);
   else
     _request.path(_config.base_path() + path);
