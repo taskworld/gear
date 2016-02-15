@@ -1,4 +1,4 @@
-file(GLOB lib_SOURCES httpclient/*.cpp)
-file(GLOB lib_HEADERS httpclient/*.hpp)
+file(GLOB _gear_SOURCES httpclient/*.cpp)
+file(GLOB _gear_HEADERS httpclient/*.hpp)
 
-add_library(LIB ${lib_SOURCES} ${lib_HEADERS})
+add_library(_gear ${gear_SOURCES} ${gear_HEADERS})
