@@ -2,6 +2,16 @@
 
 namespace gear {
 
+http_config::http_config(){
+
+}
+
+http_config::http_config(const string& host, const string& base_path,const pair<string, string>& base_header){
+  host(host);
+  base_path(base_path);
+  add_base_header(base_header);
+}
+
 string http_config::host() const { return _host; }
 
 http_config& http_config::host(const string& host) {
@@ -21,6 +31,11 @@ http_config& http_config::base_path(const string& base_path) {
 
 unordered_map<string, string> http_config::base_headers() const {
   return _base_headers;
+}
+
+http_config& http_config::add_base_header(const pair<string, string>& base_header) {
+  _base_headers[base_header.first] = base_header.second;
+  return *this;
 }
 
 http_config& http_config::add_base_header(const string& key,

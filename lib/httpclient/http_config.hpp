@@ -7,6 +7,9 @@ using namespace std;
 namespace gear {
 class http_config final {
  public:
+  http_config();
+  http_config(const string& host, const string& base_path,const pair<string, string>& base_header);
+
   string host() const;
   http_config& host(const string& host);
 
@@ -15,6 +18,7 @@ class http_config final {
 
   unordered_map<string, string>base_headers() const;
   http_config& base_headers(const unordered_map<string, string>& base_headers);
+  http_config& add_base_header(const pair<string, string>& base_header);
   http_config& add_base_header(const string& key, const string& value);
 
   vector<pair<string, string>> base_queries() const;
