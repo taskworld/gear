@@ -6,10 +6,8 @@ http_config::http_config(){
 
 }
 
-http_config::http_config(const string& host, const string& base_path,const pair<string, string>& base_header){
-  host(host);
-  base_path(base_path);
-  add_base_header(base_header);
+http_config::http_config(const string& init_host, const string& init_base_path,const pair<string, string>& init_base_header){
+  host(init_host).base_path(init_base_path).add_base_header(init_base_header);
 }
 
 string http_config::host() const { return _host; }
