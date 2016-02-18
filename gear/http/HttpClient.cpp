@@ -7,7 +7,7 @@
 namespace gear {
 class HttpClient::impl {
  public:
-  impl(asio::ioContext& ioContext, asio::ssl::context& context,
+  impl(asio::io_context& ioContext, asio::ssl::context& context,
        const HttpRequest request, completion_handler handler)
       : _socket(ioContext, context),
         _resolver(ioContext),
@@ -33,7 +33,7 @@ class HttpClient::impl {
   friend class HttpClient;
 
  private:
-  static unique_ptr<impl> execute(asio::ioContext& ioContext,
+  static unique_ptr<impl> execute(asio::io_context& ioContext,
                                   asio::ssl::context& context,
                                   const HttpRequest& request,
                                   const completion_handler& handler) {

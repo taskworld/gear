@@ -57,7 +57,7 @@ class HttpClient final {
   void run();
   void setConfigToRequest();
 
-  asio::ioContext _ioContext;
+  asio::io_context _ioContext;
   asio::ssl::context _sslContext;
   HttpRequest _request;
   HttpConfig _config;
