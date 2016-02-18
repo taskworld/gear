@@ -5,20 +5,20 @@
 using namespace std;
 
 namespace gear {
-class http_response final {
+class HttpResponse final {
  public:
   int code() const;
-  http_response& code(const int code);
+  HttpResponse& code(const int code);
   // TODO :overload operator
   string message() const;
-  http_response& message(const string& message);
+  HttpResponse& message(const string& message);
 
   unordered_map<string, string> headers() const;
-  http_response& headers(const unordered_map<string, string>& headers);
-  http_response& add_header(const string& key, const string& value);
+  HttpResponse& headers(const unordered_map<string, string>& headers);
+  HttpResponse& addHeader(const string& key, const string& value);
 
   string body() const;
-  http_response& body(const string& body);
+  HttpResponse& body(const string& body);
 
  private:
   int _code{-1};
