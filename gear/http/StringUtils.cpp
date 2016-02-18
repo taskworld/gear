@@ -1,11 +1,11 @@
-#include "string_utils.hpp"
+#include "StringUtils.hpp"
 
 namespace gear_utils {
 
 string trim(const string &s) {
-  auto is_space = [](int c) { return isspace(c); };
-  auto front = find_if_not(begin(s), end(s), is_space);
-  auto back = find_if_not(rbegin(s), rend(s), is_space).base();
+  auto isSpace = [](int c) { return isspace(c); };
+  auto front = find_if_not(begin(s), end(s), isSpace);
+  auto back = find_if_not(rbegin(s), rend(s), isSpace).base();
   return (back <= front ? string() : string(front, back));
 }
 
@@ -19,32 +19,32 @@ vector<string> split(const std::string &s, char delim) {
   return elems;
 }
 
-string decode_url(const string &url) {
-  ostringstream result_stream;
+string decodeUrl(const string &url) {
+  ostringstream resultStream;
   for (unsigned int i = 0; i < url.length(); i++) {
     if (url[i] == '%') {
       int dec1, dec2;
       if (-1 != (dec1 = HEX2DEC[(int)url[i + 1]]) &&
           -1 != (dec2 = HEX2DEC[(int)url[i + 2]])) {
-        result_stream << ((char)((dec1 << 4) + dec2));
+        resultStream << ((char)((dec1 << 4) + dec2));
         i += 2;
       }
     } else {
-      result_stream << url[i];
+      resultStream << url[i];
     }
   }
-  return result_stream.str();
+  return resultStream.str();
 }
 
-string encode_url(const string &url) {
-  ostringstream result_stream;
+string encodeUrl(const string &url) {
+  ostringstream resultStream;
   for (const char &c : url) {
     if (SAFE[(unsigned int)c]) {
-      result_stream << c;
+      resultStream << c;
     } else {
-      result_stream << '%' << DEC2HEX[c >> 4] << DEC2HEX[c & 0x0F];
+      resultStream << '%' << DEC2HEX[c >> 4] << DEC2HEX[c & 0x0F];
     }
   }
-  return result_stream.str();
+  return resultStream.str();
 }
 }

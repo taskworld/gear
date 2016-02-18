@@ -1,12 +1,12 @@
 
 #include "socket/socket.hpp"
-#include "semaphore.cpp"
+#include "Semaphore.cpp"
 #include <gtest/gtest.h>
 
 using namespace std;
 
 TEST(socket, test_ssl) {
-  semaphore s;
+  Semaphore s;
 
   gear::websocket_endpoint socket;
   socket
@@ -35,5 +35,5 @@ TEST(socket, test_ssl) {
           })
       .connect("wss://echo.websocket.org");
 
-  s.wait_for(chrono::seconds(10));
+  s.waitFor(chrono::seconds(10));
 }

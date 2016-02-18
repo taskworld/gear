@@ -13,8 +13,8 @@ namespace gear_utils {
 
 string trim(const string &s);
 vector<string> split(const string &s, char delim);
-string decode_url(const string &url);
-string encode_url(const string &url);
+string decodeUrl(const string &url);
+string encodeUrl(const string &url);
 
 // string url encode and decode
 const char DEC2HEX[16 + 1] = "0123456789ABCDEF";
