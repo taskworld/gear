@@ -2,9 +2,9 @@
 
 namespace gear {
 
-string HttpResponse::message() const { return _message; }
+std::string HttpResponse::message() const { return _message; }
 
-HttpResponse& HttpResponse::message(const string& message) {
+HttpResponse& HttpResponse::message(const std::string& message) {
   _message = message;
   return *this;
 }
@@ -16,25 +16,25 @@ HttpResponse& HttpResponse::code(const int code) {
   return *this;
 }
 
-unordered_map<string, string> HttpResponse::headers() const {
+std::unordered_map<std::string, std::string> HttpResponse::headers() const {
   return _headers;
 }
 
 HttpResponse& HttpResponse::headers(
-    const unordered_map<string, string>& headers) {
+    const std::unordered_map<std::string, std::string>& headers) {
   _headers = headers;
   return *this;
 }
 
-HttpResponse& HttpResponse::addHeader(const string& key,
-                                         const string& value) {
+HttpResponse& HttpResponse::addHeader(const std::string& key,
+                                         const std::string& value) {
   _headers[key] = value;
   return *this;
 }
 
-string HttpResponse::body() const { return _body; }
+std::string HttpResponse::body() const { return _body; }
 
-HttpResponse& HttpResponse::body(const string& body) {
+HttpResponse& HttpResponse::body(const std::string& body) {
   _body = body;
   return *this;
 }

@@ -1,15 +1,15 @@
-#include "StringUtils.hpp"
+#include "stringUtils.hpp"
 
 namespace gear_utils {
 
-string trim(const string &s) {
+std::string trim(const std::string &s) {
   auto isSpace = [](int c) { return isspace(c); };
   auto front = find_if_not(begin(s), end(s), isSpace);
   auto back = find_if_not(rbegin(s), rend(s), isSpace).base();
-  return (back <= front ? string() : string(front, back));
+  return (back <= front ? std::string() : std::string(front, back));
 }
 
-vector<string> split(const std::string &s, char delim) {
+std::vector<std::string> split(const std::string &s, char delim) {
   std::vector<std::string> elems;
   std::stringstream ss(s);
   std::string item;
@@ -19,8 +19,8 @@ vector<string> split(const std::string &s, char delim) {
   return elems;
 }
 
-string decodeUrl(const string &url) {
-  ostringstream resultStream;
+std::string decodeUrl(const std::string &url) {
+  std::ostringstream resultStream;
   for (unsigned int i = 0; i < url.length(); i++) {
     if (url[i] == '%') {
       int dec1, dec2;
@@ -36,8 +36,8 @@ string decodeUrl(const string &url) {
   return resultStream.str();
 }
 
-string encodeUrl(const string &url) {
-  ostringstream resultStream;
+std::string encodeUrl(const std::string &url) {
+  std::ostringstream resultStream;
   for (const char &c : url) {
     if (SAFE[(unsigned int)c]) {
       resultStream << c;

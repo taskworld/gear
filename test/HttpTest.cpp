@@ -5,7 +5,7 @@
 
 TEST(asio_http, get_unknown_host) {
   Semaphore s;
-  string status;
+  std::string status;
   gear::HttpClient client("klj90u90klklkffkfjf");
 
   client.path("/v1/123156789")
@@ -19,8 +19,8 @@ TEST(asio_http, get_unknown_host) {
 
 TEST(asio_http, config_set_value_to_request) {
   Semaphore s;
-  string status;
-  string payload1, payload2;
+  std::string status;
+  std::string payload1, payload2;
 
   auto config = gear::HttpConfig().host("httpbin.org").basePath("/headers");
   gear::HttpClient client(config);
@@ -56,7 +56,7 @@ TEST(asio_http, config_set_value_to_request) {
 
 TEST(asio_http, get) {
   Semaphore s;
-  string status;
+  std::string status;
 
   gear::HttpClient client("httpbin.org");
   client.path("/headers")
@@ -72,7 +72,7 @@ TEST(asio_http, get) {
 
 TEST(asio_http, put) {
   Semaphore s;
-  string status;
+  std::string status;
 
   gear::HttpClient client("httpbin.org");
   client.path("/put").httpPut([&](const gear::HttpRequest, const gear::HttpResponse response) {
@@ -86,7 +86,7 @@ TEST(asio_http, put) {
 
 TEST(asio_http, post) {
   Semaphore s;
-  string status;
+  std::string status;
 
   gear::HttpClient client("httpbin.org");
   client.path("/post").httpPost([&](const gear::HttpRequest, const gear::HttpResponse response) {
@@ -100,7 +100,7 @@ TEST(asio_http, post) {
 
 TEST(asio_http, patch) {
   Semaphore s;
-  string status;
+  std::string status;
 
   gear::HttpClient client("httpbin.org");
   client.path("/patch")
@@ -115,7 +115,7 @@ TEST(asio_http, patch) {
 
 TEST(asio_http, delete) {
   Semaphore s;
-  string status;
+  std::string status;
 
   gear::HttpClient client("httpbin.org");
   client.path("/delete")
@@ -130,7 +130,7 @@ TEST(asio_http, delete) {
 
 TEST(asio_http, get_with_header) {
   Semaphore s;
-  string status;
+  std::string status;
 
   gear::HttpClient client("api.github.com");
   gear::HttpRequest requestExecute;
@@ -149,7 +149,7 @@ TEST(asio_http, get_with_header) {
 
 TEST(asio_http, get_with_query) {
   Semaphore s;
-  string status = "Unknown";
+  std::string status = "Unknown";
   gear::HttpClient client("httpbin.org");
   gear::HttpRequest request1;
   request1.path("/get").method(gear::HttpMethod::GET).addQuery("show_env", "1");

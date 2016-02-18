@@ -7,40 +7,37 @@
 #include "HttpResponse.hpp"
 #include "HttpConfig.hpp"
 
-using namespace std;
-using namespace std::experimental;
-
 using completion_handler =
-    function<void(const gear::HttpRequest, const gear::HttpResponse)>;
+    std::function<void(const gear::HttpRequest, const gear::HttpResponse)>;
 
 namespace gear {
 
 class HttpClient final {
  public:
-  HttpClient(const string& uri);
+  HttpClient(const std::string& uri);
   HttpClient(HttpConfig config);
   ~HttpClient();
 
-  string host() const;
-  HttpClient& host(const string& host);
+  std::string host() const;
+  HttpClient& host(const std::string& host);
 
-  string path() const;
-  HttpClient& path(const string& path);
+  std::string path() const;
+  HttpClient& path(const std::string& path);
 
   HttpMethod method() const;
   HttpClient& method(const HttpMethod& method);
 
-  unordered_map<string, string> headers() const;
-  HttpClient& headers(const unordered_map<string, string>& headers);
-  HttpClient& addHeader(const string& key, const string& value);
+  std::unordered_map<std::string, std::string> headers() const;
+  HttpClient& headers(const std::unordered_map<std::string, std::string>& headers);
+  HttpClient& addHeader(const std::string& key, const std::string& value);
 
-  string body() const;
-  HttpClient& body(const string& body);
+  std::string body() const;
+  HttpClient& body(const std::string& body);
 
-  vector<pair<string, string>> queries() const;
-  HttpClient& queries(const vector<pair<string, string>>& queries);
-  HttpClient& addQuery(const pair<string, string>& query);
-  HttpClient& addQuery(const string& key, const string& value);
+  std::vector<std::pair<std::string, std::string>> queries() const;
+  HttpClient& queries(const std::vector<std::pair<std::string, std::string>>& queries);
+  HttpClient& addQuery(const std::pair<std::string, std::string>& query);
+  HttpClient& addQuery(const std::string& key, const std::string& value);
 
   void httpGet(const completion_handler& handler);
   void httpPut(const completion_handler& handler);
@@ -62,8 +59,8 @@ class HttpClient final {
   HttpRequest _request;
   HttpConfig _config;
   class impl;
-  unique_ptr<impl> _pimpl;
+  std::unique_ptr<impl> _pimpl;
 
-  unique_ptr<thread> _thread;
+  std::unique_ptr<std::thread> _thread;
 };
 }  // namespace tw

@@ -2,17 +2,13 @@
 
 namespace gear {
 
-HttpConfig::HttpConfig(){
-
-}
-
-HttpConfig::HttpConfig(const string& initHost, const string& initBasePath,const pair<string, string>& initBaseHeader){
+HttpConfig::HttpConfig(const std::string& initHost, const std::string& initBasePath,const std::pair<std::string, std::string>& initBaseHeader){
   host(initHost).basePath(initBasePath).addBaseHeader(initBaseHeader);
 }
 
-string HttpConfig::host() const { return _host; }
+std::string HttpConfig::host() const { return _host; }
 
-HttpConfig& HttpConfig::host(const string& host) {
+HttpConfig& HttpConfig::host(const std::string& host) {
   _host = host;
   if (!_host.empty()) {
     addBaseHeader("Host", _host);
@@ -20,45 +16,45 @@ HttpConfig& HttpConfig::host(const string& host) {
   return *this;
 }
 
-string HttpConfig::basePath() const { return _basePath; }
+std::string HttpConfig::basePath() const { return _basePath; }
 
-HttpConfig& HttpConfig::basePath(const string& basePath) {
+HttpConfig& HttpConfig::basePath(const std::string& basePath) {
   _basePath = basePath;
   return *this;
 }
 
-unordered_map<string, string> HttpConfig::baseHeaders() const {
+std::unordered_map<std::string, std::string> HttpConfig::baseHeaders() const {
   return _baseHeaders;
 }
 
-HttpConfig& HttpConfig::addBaseHeader(const pair<string, string>& baseHeader) {
+HttpConfig& HttpConfig::addBaseHeader(const std::pair<std::string, std::string>& baseHeader) {
   _baseHeaders[baseHeader.first] = baseHeader.second;
   return *this;
 }
 
-HttpConfig& HttpConfig::addBaseHeader(const string& key,
-                                          const string& value) {
+HttpConfig& HttpConfig::addBaseHeader(const std::string& key,
+                                          const std::string& value) {
   _baseHeaders[key] = value;
   return *this;
 }
 
-vector<pair<string, string>> HttpConfig::baseQueries() const {
+std::vector<std::pair<std::string, std::string>> HttpConfig::baseQueries() const {
   return _baseQueries;
 }
 HttpConfig& HttpConfig::baseQueries(
-    const vector<pair<string, string>>& queries) {
+    const std::vector<std::pair<std::string, std::string>>& queries) {
   _baseQueries = queries;
   return *this;
 }
 
-HttpConfig& HttpConfig::addBaseQuery(const pair<string, string>& query) {
+HttpConfig& HttpConfig::addBaseQuery(const std::pair<std::string, std::string>& query) {
   _baseQueries.push_back(query);
   return *this;
 }
 
-HttpConfig& HttpConfig::addBaseQuery(const string& key,
-                                         const string& value) {
-  _baseQueries.push_back(make_pair(key, value));
+HttpConfig& HttpConfig::addBaseQuery(const std::string& key,
+                                         const std::string& value) {
+  _baseQueries.push_back(std::make_pair(key, value));
   return *this;
 }
 }

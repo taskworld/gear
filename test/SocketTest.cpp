@@ -30,7 +30,7 @@ TEST(socket, test_ssl) {
         s.notify();
       })
       .on_message(
-          [&s](websocketpp::frame::opcode::value value, string payload) {
+          [&s](websocketpp::frame::opcode::value value, std::string payload) {
             cout << " Message: " << payload << endl;
           })
       .connect("wss://echo.websocket.org");

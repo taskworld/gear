@@ -7,16 +7,14 @@
 #include <string>
 #include <vector>
 
-using namespace std;
-
 namespace gear_utils {
 
-string trim(const string &s);
-vector<string> split(const string &s, char delim);
-string decodeUrl(const string &url);
-string encodeUrl(const string &url);
+std::string trim(const std::string &s);
+std::vector<std::string> split(const std::string &s, char delim);
+std::string decodeUrl(const std::string &url);
+std::string encodeUrl(const std::string &url);
 
-// string url encode and decode
+// std::string url encode and decode
 const char DEC2HEX[16 + 1] = "0123456789ABCDEF";
 const int HEX2DEC[256] = {
     /*       0  1  2  3   4  5  6  7   8  9  A  B   C  D  E  F */

@@ -2,7 +2,7 @@
 #include <thread>
 
 #include "HttpClient.hpp"
-#include "StringUtils.hpp"
+#include "stringUtils.hpp"
 
 namespace gear {
 class HttpClient::impl {
@@ -25,87 +25,87 @@ class HttpClient::impl {
 
     _resolver.async_resolve(
         _request.host(), "443",
-        bind(&impl::handleResolve, this, placeholders::_1, placeholders::_2));
+        bind(&impl::handleResolve, this, std::placeholders::_1, std::placeholders::_2));
   }
 
-  HttpRequest getRequest() { return _request; }
+  HttpRequest getRequest() const{ return _request; }
 
   friend class HttpClient;
 
  private:
-  static unique_ptr<impl> execute(asio::io_context& ioContext,
+  static std::unique_ptr<impl> execute(asio::io_context& ioContext,
                                   asio::ssl::context& context,
                                   const HttpRequest& request,
                                   const completion_handler& handler) {
-    return make_unique<impl>(ioContext, context, request, handler);
+    return std::make_unique<impl>(ioContext, context, request, handler);
   }
 
-  void handleResolve(const error_code& error,
+  void handleResolve(const std::error_code& error,
                       asio::ip::tcp::resolver::results_type endpoints) {
     if (!error) {
       asio::async_connect(_socket.lowest_layer(), endpoints,
-                          bind(&impl::handleConnect, this, placeholders::_1));
+                          bind(&impl::handleConnect, this, std::placeholders::_1));
     } else {
       handleError(error);
     }
   }
 
-  void handleConnect(const error_code& error) {
+  void handleConnect(const std::error_code& error) {
     if (!error) {
       _socket.async_handshake(
           asio::ssl::stream_base::client,
-          bind(&impl::handleHandshake, this, placeholders::_1));
+          bind(&impl::handleHandshake, this, std::placeholders::_1));
     } else {
       handleError(error);
     }
   }
 
-  void handleHandshake(const error_code& error) {
+  void handleHandshake(const std::error_code& error) {
     if (!error) {
       auto request = writeRequest();
       asio::async_write(
           _socket, asio::buffer(request),
-          bind(&impl::handleWrite, this, placeholders::_1, placeholders::_2));
+          bind(&impl::handleWrite, this, std::placeholders::_1, std::placeholders::_2));
     } else {
       handleError(error);
     }
   }
 
-  void handleWrite(const error_code& error, size_t /*bytes_transferred*/) {
+  void handleWrite(const std::error_code& error, size_t /*bytes_transferred*/) {
     if (!error) {
       asio::async_read_until(_socket, _streamResponse, "\r\n",
                              bind(&impl::handleReadCodeAndMessage, this,
-                                  placeholders::_1, placeholders::_2));
+                                  std::placeholders::_1, std::placeholders::_2));
     } else {
       handleError(error);
     }
   }
 
-  void handleReadCodeAndMessage(const error_code& error,
+  void handleReadCodeAndMessage(const std::error_code& error,
                                     size_t /*bytes_transferred*/) {
     if (!error) {
-      istream responseStream(&_streamResponse);
-      string httpVersion;
+      std::istream responseStream(&_streamResponse);
+      std::string httpVersion;
       unsigned int statusCode;
-      string statusMessage;
+      std::string statusMessage;
       responseStream >> httpVersion;
       responseStream >> statusCode;
       getline(responseStream, statusMessage);
       _response.code(statusCode).message(statusMessage);
       asio::async_read_until(_socket, _streamResponse, "\r\n\r\n",
                              bind(&impl::handleReadHeaders, this,
-                                  placeholders::_1, placeholders::_2));
+                                  std::placeholders::_1, std::placeholders::_2));
     } else {
       handleError(error);
     }
   }
 
-  void handleReadHeaders(const error_code& error,
+  void handleReadHeaders(const std::error_code& error,
                            size_t /*bytes_transferred*/) {
     if (!error) {
       // Process the response headers.
-      istream responseStream(&_streamResponse);
-      string headerString;
+      std::istream responseStream(&_streamResponse);
+      std::string headerString;
       while (std::getline(responseStream, headerString) &&
              headerString != "\r") {
         auto header = gear_utils::split(headerString, ':');
@@ -124,11 +124,11 @@ class HttpClient::impl {
 
   void handleReadBody() {
     asio::async_read(_socket, _streamResponse, asio::transfer_at_least(1),
-                     bind(&impl::recursiveReadBody, this, placeholders::_1,
-                          placeholders::_2));
+                     bind(&impl::recursiveReadBody, this, std::placeholders::_1,
+                          std::placeholders::_2));
   }
 
-  void recursiveReadBody(const error_code& error,
+  void recursiveReadBody(const std::error_code& error,
                            size_t /*bytes_transferred*/) {
     if (!error) {
       _responseStream << &_streamResponse;
@@ -139,14 +139,14 @@ class HttpClient::impl {
     }
   }
 
-  void handleError(const error_code& error) {
+  void handleError(const std::error_code& error) {
     _response.message(error.message());
     _response.code(error.value());
     _handler(_request, _response);
   }
 
-  string writeRequest() {
-    string verb;
+  std::string writeRequest() {
+    std::string verb;
     switch (_request.method()) {
       case HttpMethod::GET:
         verb = "GET";
@@ -166,8 +166,8 @@ class HttpClient::impl {
       default:
         break;
     }
-    string body = _request.body();
-    ostringstream os;
+    std::string body = _request.body();
+    std::ostringstream os;
     os << verb << " " << _request.path();
     if (_request.method() == HttpMethod::GET ||
         _request.method() == HttpMethod::DELETE) {
@@ -178,7 +178,7 @@ class HttpClient::impl {
          _request.method() == HttpMethod::PUT ||
          _request.method() == HttpMethod::PATCH) &&
         _request.body().size() > 0) {
-      _request.addHeader("Content-Length", to_string(body.length()));
+      _request.addHeader("Content-Length", std::to_string(body.length()));
       _request.addHeader("Content-Type", "application/json");
     } else {
       body = "";
@@ -189,13 +189,13 @@ class HttpClient::impl {
     return os.str();
   }
 
-  void setHeadersToStream(ostringstream& os) {
+  void setHeadersToStream(std::ostringstream& os) {
     for (const auto& header : _request.headers()) {
       os << header.first + ": " + header.second + "\r\n";
     }
   }
 
-  void setQueriesToStream(ostringstream& os) {
+  void setQueriesToStream(std::ostringstream& os) {
     if (_request.queries().size() > 0) {
       os << "?";
       bool isFirst = true;
@@ -215,9 +215,9 @@ class HttpClient::impl {
   asio::ip::tcp::resolver _resolver;
   gear::HttpRequest _request;
   gear::HttpResponse _response;
-  ostringstream _responseStream;
+  std::ostringstream _responseStream;
   asio::streambuf _streamResponse;
-  unique_ptr<thread> _thread;
+  std::unique_ptr<std::thread> _thread;
   completion_handler _handler;
 };
 
@@ -225,7 +225,7 @@ HttpClient::HttpClient() : _sslContext(asio::ssl::context::sslv23) {
   _sslContext.set_default_verify_paths();
 }
 
-HttpClient::HttpClient(const string& uri) : HttpClient() {
+HttpClient::HttpClient(const std::string& uri) : HttpClient() {
   _config.host(uri);
   setConfigToRequest();
 }
@@ -266,7 +266,7 @@ void HttpClient::execute(const HttpRequest& requestExecute,
 void HttpClient::execute(const completion_handler& handler) {
   reset();
   _pimpl = impl::execute(_ioContext, _sslContext, _request, handler);
-  _thread = make_unique<thread>(&HttpClient::run, this);
+  _thread = std::make_unique<std::thread>(&HttpClient::run, this);
   _request = gear::HttpRequest();
   setConfigToRequest();
 }
@@ -310,17 +310,17 @@ void HttpClient::httpPatch(const completion_handler& handler) {
 }
 
 // HttpRequest forward
-string HttpClient::host() const { return _request.host(); }
+std::string HttpClient::host() const { return _request.host(); }
 
-HttpClient& HttpClient::host(const string& host) {
+HttpClient& HttpClient::host(const std::string& host) {
   _config.host(host);
   _request.host(host);
   return *this;
 }
 
-string HttpClient::path() const { return _request.path(); }
+std::string HttpClient::path() const { return _request.path(); }
 
-HttpClient& HttpClient::path(const string& path) {
+HttpClient& HttpClient::path(const std::string& path) {
   if (_config.basePath().empty())
     _request.path(path);
   else
@@ -336,42 +336,42 @@ HttpClient& HttpClient::method(const HttpMethod& method) {
   return *this;
 }
 
-unordered_map<string, string> HttpClient::headers() const {
+std::unordered_map<std::string, std::string> HttpClient::headers() const {
   return _request.headers();
 }
 
 HttpClient& HttpClient::headers(
-    const unordered_map<string, string>& headers) {
+    const std::unordered_map<std::string, std::string>& headers) {
   _request.headers(headers);
   return *this;
 }
 
-HttpClient& HttpClient::addHeader(const string& key, const string& value) {
+HttpClient& HttpClient::addHeader(const std::string& key, const std::string& value) {
   _request.addHeader(key, value);
   return *this;
 }
 
-string HttpClient::body() const { return _request.body(); }
+std::string HttpClient::body() const { return _request.body(); }
 
-HttpClient& HttpClient::body(const string& body) {
+HttpClient& HttpClient::body(const std::string& body) {
   _request.body(body);
   return *this;
 }
 
-vector<pair<string, string>> HttpClient::queries() const {
+std::vector<std::pair<std::string, std::string>> HttpClient::queries() const {
   return _request.queries();
 }
-HttpClient& HttpClient::queries(const vector<pair<string, string>>& queries) {
+HttpClient& HttpClient::queries(const std::vector<std::pair<std::string, std::string>>& queries) {
   _request.queries(queries);
   return *this;
 }
 
-HttpClient& HttpClient::addQuery(const pair<string, string>& query) {
+HttpClient& HttpClient::addQuery(const std::pair<std::string, std::string>& query) {
   _request.addQuery(query);
   return *this;
 }
 
-HttpClient& HttpClient::addQuery(const string& key, const string& value) {
+HttpClient& HttpClient::addQuery(const std::string& key, const std::string& value) {
   _request.addQuery(key, value);
   return *this;
 }

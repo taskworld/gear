@@ -2,39 +2,37 @@
 #include <unordered_map>
 #include <vector>
 
-using namespace std;
-
 namespace gear {
 enum class HttpMethod { GET, POST, PUT, DELETE, PATCH };
 class HttpRequest final {
  public:
-  string host() const;
-  HttpRequest& host(const string& host);
+  std::string host() const;
+  HttpRequest& host(const std::string& host);
 
-  string path() const;
-  HttpRequest& path(const string& path);
+  std::string path() const;
+  HttpRequest& path(const std::string& path);
 
   HttpMethod method() const;
   HttpRequest& method(const HttpMethod& method);
 
-  unordered_map<string, string> headers() const;
-  HttpRequest& headers(unordered_map<string, string> headers);
-  HttpRequest& addHeader(const string& key, const string& value);
+  std::unordered_map<std::string, std::string> headers() const;
+  HttpRequest& headers(std::unordered_map<std::string, std::string> headers);
+  HttpRequest& addHeader(const std::string& key, const std::string& value);
 
-  string body() const;
-  HttpRequest& body(const string& parameters);
+  std::string body() const;
+  HttpRequest& body(const std::string& parameters);
 
-  vector<pair<string, string>> queries() const;
-  HttpRequest& queries(vector<pair<string, string>> queries);
-  HttpRequest& addQuery(const pair<string, string>& query);
-  HttpRequest& addQuery(const string& key, const string& value);
+  std::vector<std::pair<std::string, std::string>> queries() const;
+  HttpRequest& queries(std::vector<std::pair<std::string, std::string>> queries);
+  HttpRequest& addQuery(const std::pair<std::string, std::string>& query);
+  HttpRequest& addQuery(const std::string& key, const std::string& value);
 
  private:
-  string _host;
-  string _path;
+  std::string _host;
+  std::string _path;
   HttpMethod _method;
-  vector<pair<string, string>> _queries;
-  unordered_map<string, string> _headers;
-  string _body;
+  std::vector<std::pair<std::string, std::string>> _queries;
+  std::unordered_map<std::string, std::string> _headers;
+  std::string _body;
 };
 }
