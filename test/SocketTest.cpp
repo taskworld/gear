@@ -13,8 +13,8 @@ TEST(SocketConnection, ssl) {
   string receivedMessage = "";
 
   socket
-      .withTls([this](websocketpp::connection_hdl) {
-        return websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tlsv12_client);
+      .withTls([](websocketpp::connection_hdl) {
+        return make_shared<asio::ssl::context>(asio::ssl::context::tlsv12_client);
       })
       .onOpened([&sendMessage, &socket](client::connection_ptr) {
         cout << "Open" << endl;
@@ -48,8 +48,8 @@ TEST(Socket, AutoRetry) {
   int retry = 0;
 
   socket
-      .withTls([this](websocketpp::connection_hdl) {
-        return websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tlsv12_client);
+      .withTls([](websocketpp::connection_hdl) {
+        return make_shared<asio::ssl::context>(asio::ssl::context::tlsv12_client);
       })
       .onOpened([&retry, &s, &socket](client::connection_ptr con) {
         cout << "Open" << endl;

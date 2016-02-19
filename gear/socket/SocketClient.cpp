@@ -63,15 +63,12 @@ ostream &operator<<(ostream &out, ConnectionMetaData const &data) {
       << "> Remote Server: " << (data._server.empty() ? "None Specified" : data._server) << "\n"
       << "> Error/close reason: " << (data._errorReason.empty() ? "N/A" : data._errorReason)
       << "\n";
-
   return out;
 }
 
 WebSocketEndpoint::WebSocketEndpoint() {
   _endpoint.clear_access_channels(websocketpp::log::alevel::all);
   _endpoint.clear_error_channels(websocketpp::log::elevel::all);
-
-  _retryHandler = [](int) {};
 
   _endpoint.init_asio();
   _endpoint.start_perpetual();
@@ -131,7 +128,7 @@ void WebSocketEndpoint::connect(const string &uri) {
   _connection = make_shared<ConnectionMetaData>(con->get_handle(), uri);
 
   con->set_open_handler(bind(&ConnectionMetaData::onOpened, _connection, &_endpoint,
-                             placeholders::_1, _retryAttemptyCount, _openHandler));
+                             placeholders::_1, _retryAttemptCount, _openHandler));
 
   con->set_fail_handler(
       bind(&ConnectionMetaData::onFailed, _connection, &_endpoint, placeholders::_1, _failHandler));
@@ -146,9 +143,10 @@ void WebSocketEndpoint::connect(const string &uri) {
 }
 
 void WebSocketEndpoint::retry(const string &uri) {
-  _retryAttemptyCount++;
-  this_thread::sleep_for(chrono::seconds(3 * _retryAttemptyCount));
-  _retryHandler(_retryAttemptyCount);
+  this_thread::sleep_for(chrono::seconds(3 * ++_retryAttemptCount));
+  if (_retryHandler) {
+    (*_retryHandler)(_retryAttemptCount);
+  }
   connect(uri);
 }
 
@@ -166,6 +164,8 @@ void WebSocketEndpoint::send(string message) {
 
   if (_connection && _connection->getStatus() == ConnectionMetaData::status::open) {
     _endpoint.send(_connection->getHandler(), message, websocketpp::frame::opcode::text, error);
+  } else if (_connection && _connection->getStatus() == ConnectionMetaData::status::retry) {
+    // TODO: Cache message and send again when successfully connected to server
   } else {
     error = make_error_code(std::errc::not_connected);
   }

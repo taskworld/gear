@@ -1,6 +1,7 @@
 #pragma once
 
 #include <chrono>
+#include <experimental/optional>
 #include <thread>
 
 #include <websocketpp/client.hpp>
@@ -77,14 +78,14 @@ class WebSocketEndpoint final {
  private:
   client _endpoint;
   unique_ptr<thread> _thread;
-  int _retryAttemptyCount{0};
+  int _retryAttemptCount{0};
 
   shared_ptr<ConnectionMetaData> _connection;
 
   function<void(client::connection_ptr)> _openHandler;
   function<void(client::connection_ptr)> _failHandler;
   function<void(client::connection_ptr)> _closeHandler;
-  function<void(int)> _retryHandler;
+  experimental::optional<function<void(int)>> _retryHandler;
   function<void(websocketpp::frame::opcode::value, string)> _messageHandler;
 
   void retry(string const &uri);
