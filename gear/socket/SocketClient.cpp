@@ -5,17 +5,12 @@ ConnectionMetaData::ConnectionMetaData(websocketpp::connection_hdl hdl, string u
     : _hdl(hdl), _uri(uri) {}
 
 void ConnectionMetaData::onOpened(client *c, websocketpp::connection_hdl hdl, int retry_attempt,
-                                  function<void(client::connection_ptr)> onOpened,
-                                  function<void(client::connection_ptr)> onRetryOpened) {
+                                  function<void(client::connection_ptr)> onOpened) {
   _status = status::open;
 
   client::connection_ptr con = c->get_con_from_hdl(hdl);
   _server = con->get_response_header("Server");
-  if (retry_attempt > 0) {
-    onRetryOpened(con);
-  } else {
-    onOpened(con);
-  }
+  onOpened(con);
 }
 
 void ConnectionMetaData::onFailed(client *c, websocketpp::connection_hdl hdl,
@@ -45,6 +40,7 @@ void ConnectionMetaData::onClosed(client *c, websocketpp::connection_hdl hdl,
   if (con->get_remote_close_code() != websocketpp::close::status::normal &&
       !(con->get_remote_close_code() == websocketpp::close::status::going_away &&
         con->get_remote_close_reason() == "destructor")) {
+    _status = status::retry;
     endpoint->retry(_uri);
   } else {
     onClosed(con);
@@ -57,7 +53,7 @@ void ConnectionMetaData::onMessageReceived(
   onMessageReceived(msg->get_opcode(), msg->get_payload());
 }
 
-websocketpp::connection_hdl ConnectionMetaData::getHandler() { return _hdl; }
+const websocketpp::connection_hdl ConnectionMetaData::getHandler() { return _hdl; }
 
 ConnectionMetaData::status ConnectionMetaData::getStatus() const { return _status; }
 
@@ -75,10 +71,7 @@ WebSocketEndpoint::WebSocketEndpoint() {
   _endpoint.clear_access_channels(websocketpp::log::alevel::all);
   _endpoint.clear_error_channels(websocketpp::log::elevel::all);
 
-  _retryAttemptyCount = 0;
-
-  _retryStartedHandler = [](int) {};
-  _retryOpenedHandler = [](client::connection_ptr) {};
+  _retryHandler = [](int) {};
 
   _endpoint.init_asio();
   _endpoint.start_perpetual();
@@ -98,14 +91,8 @@ WebSocketEndpoint &WebSocketEndpoint::onOpened(function<void(client::connection_
   return *this;
 }
 
-WebSocketEndpoint &WebSocketEndpoint::onRetryStarted(function<void(int)> handler) {
-  _retryStartedHandler = handler;
-  return *this;
-}
-
-WebSocketEndpoint &WebSocketEndpoint::onRetryOpened(
-    function<void(client::connection_ptr)> handler) {
-  _retryOpenedHandler = handler;
+WebSocketEndpoint &WebSocketEndpoint::onRetry(function<void(int)> handler) {
+  _retryHandler = handler;
   return *this;
 }
 
@@ -144,8 +131,7 @@ void WebSocketEndpoint::connect(const string &uri) {
   _connection = make_shared<ConnectionMetaData>(con->get_handle(), uri);
 
   con->set_open_handler(bind(&ConnectionMetaData::onOpened, _connection, &_endpoint,
-                             placeholders::_1, _retryAttemptyCount, _openHandler,
-                             _retryOpenedHandler));
+                             placeholders::_1, _retryAttemptyCount, _openHandler));
 
   con->set_fail_handler(
       bind(&ConnectionMetaData::onFailed, _connection, &_endpoint, placeholders::_1, _failHandler));
@@ -162,7 +148,7 @@ void WebSocketEndpoint::connect(const string &uri) {
 void WebSocketEndpoint::retry(const string &uri) {
   _retryAttemptyCount++;
   this_thread::sleep_for(chrono::seconds(3 * _retryAttemptyCount));
-  _retryStartedHandler(_retryAttemptyCount);
+  _retryHandler(_retryAttemptyCount);
   connect(uri);
 }
 

@@ -45,23 +45,25 @@ TEST(SocketConnection, ssl) {
 TEST(Socket, AutoRetry) {
   Semaphore s;
   gear::WebSocketEndpoint socket;
+  int retry = 0;
 
   socket
       .withTls([this](websocketpp::connection_hdl) {
         return websocketpp::lib::make_shared<asio::ssl::context>(asio::ssl::context::tlsv12_client);
       })
-      .onOpened([&socket](client::connection_ptr con) {
+      .onOpened([&retry, &s, &socket](client::connection_ptr con) {
         cout << "Open" << endl;
-        cout << "Force close socket channel. Prepare to retry." << endl;
-        socket.close(websocketpp::close::status::going_away, "Force close");
+        if (retry > 0) {
+          s.notify();
+        } else {
+          cout << "Force close socket channel. Prepare to Retry." << endl;
+          socket.close(websocketpp::close::status::going_away, "Force close");
+        }
       })
-      .onRetryStarted([](int retry_attempt) {
-        cout << "Start Retry #" << retry_attempt << " after wait for " << retry_attempt * 3
-             << " seconds." << endl;
-      })
-      .onRetryOpened([&s](client::connection_ptr con) {
-        cout << "Retry successful" << endl;
-        s.notify();
+      .onRetry([&retry](int retryCount) {
+        retry = retryCount;
+        cout << "Start Retry #" << retryCount << " after wait for " << retryCount * 3 << " seconds."
+             << endl;
       })
       .onFailed([&s](client::connection_ptr con) {
         cout << "Fail" << endl;
@@ -80,4 +82,5 @@ TEST(Socket, AutoRetry) {
       .connect("wss://echo.websocket.org");
 
   s.waitFor(chrono::seconds(15));
+  ASSERT_TRUE(retry > 0);
 }

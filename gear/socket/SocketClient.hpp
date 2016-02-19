@@ -15,13 +15,12 @@ class WebSocketEndpoint;
 
 class ConnectionMetaData final {
  public:
-  enum class status { connecting = 0, open, fail, close };
+  enum class status { connecting = 0, open, fail, retry, close };
 
   ConnectionMetaData(websocketpp::connection_hdl hdl, string uri);
 
   void onOpened(client *c, websocketpp::connection_hdl hdl, int retry_attempt,
-                function<void(client::connection_ptr)> onOpened,
-                function<void(client::connection_ptr)> onRetryOpened);
+                function<void(client::connection_ptr)> onOpened);
 
   void onFailed(client *c, websocketpp::connection_hdl hdl,
                 function<void(client::connection_ptr)> onFailed);
@@ -33,7 +32,7 @@ class ConnectionMetaData final {
       websocketpp::connection_hdl, client::message_ptr msg,
       function<void(websocketpp::frame::opcode::value, string)> onMessageReceived);
 
-  websocketpp::connection_hdl getHandler();
+  const websocketpp::connection_hdl getHandler();
 
   status getStatus() const;
 
@@ -48,9 +47,8 @@ class ConnectionMetaData final {
 };
 
 class WebSocketEndpoint final {
-  friend class ConnectionMetaData;
-
  public:
+  friend class ConnectionMetaData;
   WebSocketEndpoint();
 
   ~WebSocketEndpoint();
@@ -63,9 +61,7 @@ class WebSocketEndpoint final {
 
   WebSocketEndpoint &onFailed(function<void(client::connection_ptr)> handler);
 
-  WebSocketEndpoint &onRetryStarted(function<void(int)> handler);
-
-  WebSocketEndpoint &onRetryOpened(function<void(client::connection_ptr)> handler);
+  WebSocketEndpoint &onRetry(function<void(int)> handler);
 
   WebSocketEndpoint &onMessageReceived(
       function<void(websocketpp::frame::opcode::value, string)> handler);
@@ -81,15 +77,14 @@ class WebSocketEndpoint final {
  private:
   client _endpoint;
   unique_ptr<thread> _thread;
-  int _retryAttemptyCount;
+  int _retryAttemptyCount{0};
 
   shared_ptr<ConnectionMetaData> _connection;
 
   function<void(client::connection_ptr)> _openHandler;
   function<void(client::connection_ptr)> _failHandler;
   function<void(client::connection_ptr)> _closeHandler;
-  function<void(int)> _retryStartedHandler;
-  function<void(client::connection_ptr)> _retryOpenedHandler;
+  function<void(int)> _retryHandler;
   function<void(websocketpp::frame::opcode::value, string)> _messageHandler;
 
   void retry(string const &uri);
