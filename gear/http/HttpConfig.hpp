@@ -6,6 +6,8 @@ namespace gear {
 class HttpConfig final {
  public:
   HttpConfig() = default;
+  HttpConfig(const std::string& host);
+  HttpConfig(const std::string& host, const std::string& basePath);
   HttpConfig(const std::string& host, const std::string& basePath,const std::pair<std::string, std::string>& baseHeader);
 
   std::string host() const;
