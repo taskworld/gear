@@ -6,6 +6,7 @@
 
 #include <websocketpp/client.hpp>
 #include <websocketpp/config/asio_client.hpp>
+#include <websocketpp/error.hpp>
 
 using namespace std;
 
@@ -23,7 +24,7 @@ class ConnectionMetaData final {
   void onOpened(client *c, websocketpp::connection_hdl hdl, int retry_attempt,
                 function<void(client::connection_ptr)> onOpened);
 
-  void onFailed(client *c, websocketpp::connection_hdl hdl,
+  void onFailed(client *c, websocketpp::connection_hdl hdl, WebSocketEndpoint *endpoint,
                 function<void(client::connection_ptr)> onFailed);
 
   void onClosed(client *c, websocketpp::connection_hdl hdl, WebSocketEndpoint *endpoint,

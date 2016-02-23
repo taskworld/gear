@@ -14,6 +14,7 @@ void ConnectionMetaData::onOpened(client *c, websocketpp::connection_hdl hdl, in
 }
 
 void ConnectionMetaData::onFailed(client *c, websocketpp::connection_hdl hdl,
+                                  WebSocketEndpoint *endpoint,
                                   function<void(client::connection_ptr)> onFailed) {
   _status = status::fail;
 
@@ -21,6 +22,12 @@ void ConnectionMetaData::onFailed(client *c, websocketpp::connection_hdl hdl,
   _server = con->get_response_header("Server");
   _errorReason = con->get_ec().message();
   onFailed(con);
+
+  // If socket encountered failure, we should retry to connect to server
+  // again. This will not notify back to onClosed() since the socket in not
+  // intentionally closed.
+  _status = status::retry;
+  endpoint->retry(_uri);
 }
 
 void ConnectionMetaData::onClosed(client *c, websocketpp::connection_hdl hdl,
@@ -33,18 +40,7 @@ void ConnectionMetaData::onClosed(client *c, websocketpp::connection_hdl hdl,
     << websocketpp::close::status::get_string(con->get_remote_close_code())
     << "), close reason: " << con->get_remote_close_reason();
   _errorReason = s.str();
-
-  // If socket is not closed properly, we should retry to connect to server
-  // again. This will not notify back to onClosed() since the socket in not
-  // intentionally closed.
-  if (con->get_remote_close_code() != websocketpp::close::status::normal &&
-      !(con->get_remote_close_code() == websocketpp::close::status::going_away &&
-        con->get_remote_close_reason() == "destructor")) {
-    _status = status::retry;
-    endpoint->retry(_uri);
-  } else {
-    onClosed(con);
-  }
+  onClosed(con);
 }
 
 void ConnectionMetaData::onMessageReceived(
@@ -130,8 +126,8 @@ void WebSocketEndpoint::connect(const string &uri) {
   con->set_open_handler(bind(&ConnectionMetaData::onOpened, _connection, &_endpoint,
                              placeholders::_1, _retryAttemptCount, _openHandler));
 
-  con->set_fail_handler(
-      bind(&ConnectionMetaData::onFailed, _connection, &_endpoint, placeholders::_1, _failHandler));
+  con->set_fail_handler(bind(&ConnectionMetaData::onFailed, _connection, &_endpoint,
+                             placeholders::_1, this, _failHandler));
 
   con->set_close_handler(bind(&ConnectionMetaData::onClosed, _connection, &_endpoint,
                               placeholders::_1, this, _closeHandler));
