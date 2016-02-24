@@ -1,14 +1,15 @@
+#pragma once
+
 #include <asio.hpp>
 #include <asio/ssl.hpp>
 #include <experimental/optional>
 #include <thread>
 
+#include "HttpConfig.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
-#include "HttpConfig.hpp"
 
-using completion_handler =
-    std::function<void(const gear::HttpRequest, const gear::HttpResponse)>;
+using completion_handler = std::function<void(const gear::HttpRequest, const gear::HttpResponse)>;
 
 namespace gear {
 
@@ -44,8 +45,7 @@ class HttpClient final {
   void httpPost(const completion_handler& handler);
   void httpDelete(const completion_handler& handler);
   void httpPatch(const completion_handler& handler);
-  void execute(const HttpRequest& requestExecute,
-               const completion_handler& handler);
+  void execute(const HttpRequest& requestExecute, const completion_handler& handler);
   void execute(const completion_handler& handler);
 
  private:
