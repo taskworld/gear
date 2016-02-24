@@ -1,14 +1,19 @@
-#include <asio.hpp>
-#include <asio/ssl.hpp>
 #include <experimental/optional>
 #include <thread>
 
+#include "HttpConfig.hpp"
 #include "HttpRequest.hpp"
 #include "HttpResponse.hpp"
-#include "HttpConfig.hpp"
 
-using completion_handler =
-    std::function<void(const gear::HttpRequest, const gear::HttpResponse)>;
+using completion_handler = std::function<void(const gear::HttpRequest, const gear::HttpResponse)>;
+
+namespace asio {
+class io_context;
+
+namespace ssl {
+class context;
+}
+}
 
 namespace gear {
 
@@ -44,18 +49,17 @@ class HttpClient final {
   void httpPost(const completion_handler& handler);
   void httpDelete(const completion_handler& handler);
   void httpPatch(const completion_handler& handler);
-  void execute(const HttpRequest& requestExecute,
-               const completion_handler& handler);
+  void execute(const HttpRequest& requestExecute, const completion_handler& handler);
   void execute(const completion_handler& handler);
 
  private:
   HttpClient();
   void reset();
   void run();
-  void setConfigToRequest();
+  void applyConfig();
 
-  asio::io_context _ioContext;
-  asio::ssl::context _sslContext;
+  std::unique_ptr<asio::io_context> _ioContext;
+  std::unique_ptr<asio::ssl::context> _sslContext;
   HttpRequest _request;
   HttpConfig _config;
   class impl;
