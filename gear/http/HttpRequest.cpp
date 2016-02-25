@@ -49,7 +49,9 @@ HttpRequest& HttpRequest::method(const std::string& method) {
 std::unordered_map<std::string, std::string> HttpRequest::headers() const { return _headers; }
 
 HttpRequest& HttpRequest::headers(std::unordered_map<std::string, std::string> headers) {
-  _headers = headers;
+  for (const auto& header : headers) {
+    _headers[header.first] = header.second;
+  }
   return *this;
 }
 
@@ -68,7 +70,9 @@ HttpRequest& HttpRequest::body(const std::string& parameters) {
 std::vector<std::pair<std::string, std::string>> HttpRequest::queries() const { return _queries; }
 
 HttpRequest& HttpRequest::queries(std::vector<std::pair<std::string, std::string>> queries) {
-  _queries = queries;
+  for (const auto& query : queries) {
+    _queries.push_back(std::make_pair(query.first, query.second));
+  }
   return *this;
 }
 
