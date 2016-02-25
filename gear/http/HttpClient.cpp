@@ -320,12 +320,12 @@ HttpClient& HttpClient::path(const std::string& path) {
 
 HttpMethod HttpClient::method() const { return _request.method(); }
 
-HttpClient& HttpClient::method(const HttpMethod& method) {
+HttpClient& HttpClient::method(const std::string& method) {
   _request.method(method);
   return *this;
 }
 
-HttpClient& HttpClient::method(const std::string& method) {
+HttpClient& HttpClient::method(const HttpMethod& method) {
   _request.method(method);
   return *this;
 }
