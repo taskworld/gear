@@ -1,4 +1,5 @@
 #include "HttpRequest.hpp"
+#include "StringUtils.hpp"
 
 namespace gear {
 
@@ -23,6 +24,25 @@ HttpMethod HttpRequest::method() const { return _method; }
 
 HttpRequest& HttpRequest::method(const HttpMethod& method) {
   _method = method;
+  return *this;
+}
+
+HttpRequest& HttpRequest::method(const std::string& method) {
+  if(gear_utils::stringCompareIgnoreCase(method,"get")){
+   _method = gear::HttpMethod::GET;
+  }
+  else if(gear_utils::stringCompareIgnoreCase(method,"post")) {
+    _method = gear::HttpMethod::POST;
+  }
+  else if(gear_utils::stringCompareIgnoreCase(method,"put")) {
+    _method = gear::HttpMethod::PUT;
+  }
+  else if(gear_utils::stringCompareIgnoreCase(method,"patch")) {
+    _method = gear::HttpMethod::PATCH;
+  }
+  else if(gear_utils::stringCompareIgnoreCase(method,"delete")) {
+    _method = gear::HttpMethod::DELETE;
+  }
   return *this;
 }
 

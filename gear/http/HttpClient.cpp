@@ -4,7 +4,7 @@
 #include <thread>
 
 #include "HttpClient.hpp"
-#include "stringUtils.hpp"
+#include "StringUtils.hpp"
 
 namespace gear {
 class HttpClient::impl {
@@ -310,7 +310,11 @@ HttpMethod HttpClient::method() const { return _request.method(); }
 
 HttpClient& HttpClient::method(const HttpMethod& method) {
   _request.method(method);
+  return *this;
+}
 
+HttpClient& HttpClient::method(const std::string& method) {
+  _request.method(method);
   return *this;
 }
 

@@ -3,6 +3,20 @@
 
 #include "Semaphore.cpp"
 
+TEST(asio_http, set_request_method_by_string) {
+  gear::HttpRequest request;
+  request.method("Get");
+  EXPECT_EQ(request.method(), gear::HttpMethod::GET);
+   request.method("Post");
+  EXPECT_EQ(request.method(), gear::HttpMethod::POST);
+   request.method("Put");
+  EXPECT_EQ(request.method(), gear::HttpMethod::PUT);
+   request.method("Delete");
+  EXPECT_EQ(request.method(), gear::HttpMethod::DELETE);
+   request.method("Patch");
+  EXPECT_EQ(request.method(), gear::HttpMethod::PATCH);
+}
+
 TEST(asio_http, get_unknown_host) {
   Semaphore s;
   std::string status;

@@ -13,6 +13,7 @@ std::string trim(const std::string &s);
 std::vector<std::string> split(const std::string &s, char delim);
 std::string decodeUrl(const std::string &url);
 std::string encodeUrl(const std::string &url);
+bool stringCompareIgnoreCase( const std::string& str1, const std::string& str2 );
 
 // std::string url encode and decode
 const char DEC2HEX[16 + 1] = "0123456789ABCDEF";
