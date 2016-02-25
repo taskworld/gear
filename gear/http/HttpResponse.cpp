@@ -16,18 +16,14 @@ HttpResponse& HttpResponse::code(const int code) {
   return *this;
 }
 
-std::unordered_map<std::string, std::string> HttpResponse::headers() const {
-  return _headers;
-}
+std::unordered_map<std::string, std::string> HttpResponse::headers() const { return _headers; }
 
-HttpResponse& HttpResponse::headers(
-    const std::unordered_map<std::string, std::string>& headers) {
+HttpResponse& HttpResponse::headers(const std::unordered_map<std::string, std::string>& headers) {
   _headers = headers;
   return *this;
 }
 
-HttpResponse& HttpResponse::addHeader(const std::string& key,
-                                         const std::string& value) {
+HttpResponse& HttpResponse::addHeader(const std::string& key, const std::string& value) {
   _headers[key] = value;
   return *this;
 }

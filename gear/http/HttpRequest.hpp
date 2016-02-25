@@ -16,6 +16,7 @@ class HttpRequest final {
 
   HttpMethod method() const;
   HttpRequest& method(const HttpMethod& method);
+  HttpRequest& method(const std::string& method);
 
   std::unordered_map<std::string, std::string> headers() const;
   HttpRequest& headers(std::unordered_map<std::string, std::string> headers);

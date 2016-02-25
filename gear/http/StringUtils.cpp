@@ -24,8 +24,7 @@ std::string decodeUrl(const std::string &url) {
   for (unsigned int i = 0; i < url.length(); i++) {
     if (url[i] == '%') {
       int dec1, dec2;
-      if (-1 != (dec1 = HEX2DEC[(int)url[i + 1]]) &&
-          -1 != (dec2 = HEX2DEC[(int)url[i + 2]])) {
+      if (-1 != (dec1 = HEX2DEC[(int)url[i + 1]]) && -1 != (dec2 = HEX2DEC[(int)url[i + 2]])) {
         resultStream << ((char)((dec1 << 4) + dec2));
         i += 2;
       }
@@ -46,5 +45,13 @@ std::string encodeUrl(const std::string &url) {
     }
   }
   return resultStream.str();
+}
+
+bool stringCompareIgnoreCase(const std::string &str1, const std::string &str2) {
+  std::string str1Cpy(str1);
+  std::string str2Cpy(str2);
+  std::transform(str1Cpy.begin(), str1Cpy.end(), str1Cpy.begin(), ::tolower);
+  std::transform(str2Cpy.begin(), str2Cpy.end(), str2Cpy.begin(), ::tolower);
+  return (str1Cpy == str2Cpy);
 }
 }
