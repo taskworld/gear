@@ -33,8 +33,8 @@ class HttpClient final {
   HttpClient& path(const std::string& path);
 
   HttpMethod method() const;
-  HttpClient& method(const std::string& method);
   HttpClient& method(const HttpMethod& method);
+  HttpClient& method(const std::string& method);
 
   std::unordered_map<std::string, std::string> headers() const;
   HttpClient& headers(const std::unordered_map<std::string, std::string>& headers);
