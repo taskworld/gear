@@ -2,6 +2,14 @@
 
 namespace gear {
 
+HttpConfig::HttpConfig(const std::string& initHost){
+  host(initHost);
+}
+
+HttpConfig::HttpConfig(const std::string& initHost, const std::string& initBasePath){
+  host(initHost).basePath(initBasePath);
+}
+
 HttpConfig::HttpConfig(const std::string& initHost, const std::string& initBasePath,const std::pair<std::string, std::string>& initBaseHeader){
   host(initHost).basePath(initBasePath).addBaseHeader(initBaseHeader);
 }
