@@ -1,3 +1,8 @@
+
+#pragma once
+
+#include <asio.hpp>
+#include <asio/ssl.hpp>
 #include <experimental/optional>
 #include <thread>
 
