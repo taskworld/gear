@@ -204,8 +204,8 @@ class HttpClient::impl {
   asio::ip::tcp::resolver _resolver;
   gear::HttpRequest _request;
   gear::HttpResponse _response;
-  std::ostringstream _responseStream;
   asio::streambuf _streamResponse;
+  std::ostringstream _responseStream;
   std::unique_ptr<std::thread> _thread;
   completion_handler _handler;
 };
