@@ -2,15 +2,14 @@
 
 namespace gear {
 
-HttpConfig::HttpConfig(const std::string& initHost){
-  host(initHost);
-}
+HttpConfig::HttpConfig(const std::string& initHost) { host(initHost); }
 
-HttpConfig::HttpConfig(const std::string& initHost, const std::string& initBasePath){
+HttpConfig::HttpConfig(const std::string& initHost, const std::string& initBasePath) {
   host(initHost).basePath(initBasePath);
 }
 
-HttpConfig::HttpConfig(const std::string& initHost, const std::string& initBasePath,const std::pair<std::string, std::string>& initBaseHeader){
+HttpConfig::HttpConfig(const std::string& initHost, const std::string& initBasePath,
+                       const std::pair<std::string, std::string>& initBaseHeader) {
   host(initHost).basePath(initBasePath).addBaseHeader(initBaseHeader);
 }
 
@@ -40,8 +39,7 @@ HttpConfig& HttpConfig::addBaseHeader(const std::pair<std::string, std::string>&
   return *this;
 }
 
-HttpConfig& HttpConfig::addBaseHeader(const std::string& key,
-                                          const std::string& value) {
+HttpConfig& HttpConfig::addBaseHeader(const std::string& key, const std::string& value) {
   _baseHeaders[key] = value;
   return *this;
 }
@@ -60,8 +58,7 @@ HttpConfig& HttpConfig::addBaseQuery(const std::pair<std::string, std::string>& 
   return *this;
 }
 
-HttpConfig& HttpConfig::addBaseQuery(const std::string& key,
-                                         const std::string& value) {
+HttpConfig& HttpConfig::addBaseQuery(const std::string& key, const std::string& value) {
   _baseQueries.push_back(std::make_pair(key, value));
   return *this;
 }

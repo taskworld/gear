@@ -28,19 +28,15 @@ HttpRequest& HttpRequest::method(const HttpMethod& method) {
 }
 
 HttpRequest& HttpRequest::method(const std::string& method) {
-  if(gear_utils::stringCompareIgnoreCase(method,"get")){
-   _method = gear::HttpMethod::GET;
-  }
-  else if(gear_utils::stringCompareIgnoreCase(method,"post")) {
+  if (gear_utils::stringCompareIgnoreCase(method, "get")) {
+    _method = gear::HttpMethod::GET;
+  } else if (gear_utils::stringCompareIgnoreCase(method, "post")) {
     _method = gear::HttpMethod::POST;
-  }
-  else if(gear_utils::stringCompareIgnoreCase(method,"put")) {
+  } else if (gear_utils::stringCompareIgnoreCase(method, "put")) {
     _method = gear::HttpMethod::PUT;
-  }
-  else if(gear_utils::stringCompareIgnoreCase(method,"patch")) {
+  } else if (gear_utils::stringCompareIgnoreCase(method, "patch")) {
     _method = gear::HttpMethod::PATCH;
-  }
-  else if(gear_utils::stringCompareIgnoreCase(method,"delete")) {
+  } else if (gear_utils::stringCompareIgnoreCase(method, "delete")) {
     _method = gear::HttpMethod::DELETE;
   }
   return *this;
@@ -56,7 +52,7 @@ HttpRequest& HttpRequest::headers(std::unordered_map<std::string, std::string> h
 }
 
 HttpRequest& HttpRequest::addHeader(const std::string& key, const std::string& value) {
-  _headers[key] =  value;
+  _headers[key] = value;
   return *this;
 }
 

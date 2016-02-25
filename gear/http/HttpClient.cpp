@@ -9,7 +9,8 @@
 namespace gear {
 class HttpClient::impl {
  public:
-  impl(asio::io_context& ioContext, asio::ssl::context& context, const HttpRequest request, completion_handler handler)
+  impl(asio::io_context& ioContext, asio::ssl::context& context, const HttpRequest request,
+       completion_handler handler)
       : _socket(ioContext, context), _resolver(ioContext), _request(request), _handler(handler) {
     _socket.set_verify_mode(asio::ssl::verify_peer);
     // TODO: When use this in production, we need to verify our host ...
@@ -20,8 +21,9 @@ class HttpClient::impl {
     // [](bool verified, asio::ssl::verify_context&) { return verified; });
     // #endif
 
-    _resolver.async_resolve(_request.host(), "443",
-                            bind(&impl::handleResolve, this, std::placeholders::_1, std::placeholders::_2));
+    _resolver.async_resolve(
+        _request.host(), "443",
+        bind(&impl::handleResolve, this, std::placeholders::_1, std::placeholders::_2));
   }
 
   HttpRequest getRequest() const { return _request; }
@@ -30,13 +32,16 @@ class HttpClient::impl {
 
  private:
   static std::unique_ptr<impl> execute(asio::io_context& ioContext, asio::ssl::context& context,
-                                       const HttpRequest& request, const completion_handler& handler) {
+                                       const HttpRequest& request,
+                                       const completion_handler& handler) {
     return std::make_unique<impl>(ioContext, context, request, handler);
   }
 
-  void handleResolve(const std::error_code& error, asio::ip::tcp::resolver::results_type endpoints) {
+  void handleResolve(const std::error_code& error,
+                     asio::ip::tcp::resolver::results_type endpoints) {
     if (!error) {
-      asio::async_connect(_socket.lowest_layer(), endpoints, bind(&impl::handleConnect, this, std::placeholders::_1));
+      asio::async_connect(_socket.lowest_layer(), endpoints,
+                          bind(&impl::handleConnect, this, std::placeholders::_1));
     } else {
       handleError(error);
     }
@@ -54,8 +59,9 @@ class HttpClient::impl {
   void handleHandshake(const std::error_code& error) {
     if (!error) {
       auto request = writeRequest();
-      asio::async_write(_socket, asio::buffer(request),
-                        bind(&impl::handleWrite, this, std::placeholders::_1, std::placeholders::_2));
+      asio::async_write(
+          _socket, asio::buffer(request),
+          bind(&impl::handleWrite, this, std::placeholders::_1, std::placeholders::_2));
     } else {
       handleError(error);
     }
@@ -64,7 +70,8 @@ class HttpClient::impl {
   void handleWrite(const std::error_code& error, size_t /*bytes_transferred*/) {
     if (!error) {
       asio::async_read_until(_socket, _streamResponse, "\r\n",
-                             bind(&impl::handleReadCodeAndMessage, this, std::placeholders::_1, std::placeholders::_2));
+                             bind(&impl::handleReadCodeAndMessage, this, std::placeholders::_1,
+                                  std::placeholders::_2));
     } else {
       handleError(error);
     }
@@ -80,8 +87,9 @@ class HttpClient::impl {
       responseStream >> statusCode;
       getline(responseStream, statusMessage);
       _response.code(statusCode).message(statusMessage);
-      asio::async_read_until(_socket, _streamResponse, "\r\n\r\n",
-                             bind(&impl::handleReadHeaders, this, std::placeholders::_1, std::placeholders::_2));
+      asio::async_read_until(
+          _socket, _streamResponse, "\r\n\r\n",
+          bind(&impl::handleReadHeaders, this, std::placeholders::_1, std::placeholders::_2));
     } else {
       handleError(error);
     }
@@ -108,8 +116,9 @@ class HttpClient::impl {
   }
 
   void handleReadBody() {
-    asio::async_read(_socket, _streamResponse, asio::transfer_at_least(1),
-                     bind(&impl::recursiveReadBody, this, std::placeholders::_1, std::placeholders::_2));
+    asio::async_read(
+        _socket, _streamResponse, asio::transfer_at_least(1),
+        bind(&impl::recursiveReadBody, this, std::placeholders::_1, std::placeholders::_2));
   }
 
   void recursiveReadBody(const std::error_code& error, size_t /*bytes_transferred*/) {
@@ -259,7 +268,10 @@ void HttpClient::reset() {
 }
 
 void HttpClient::applyConfig() {
-  _request.host(_config.host()).path(_config.basePath()).headers(_config.baseHeaders()).queries(_config.baseQueries());
+  _request.host(_config.host())
+      .path(_config.basePath())
+      .headers(_config.baseHeaders())
+      .queries(_config.baseQueries());
 }
 
 void HttpClient::httpGet(const completion_handler& handler) {
@@ -318,7 +330,9 @@ HttpClient& HttpClient::method(const std::string& method) {
   return *this;
 }
 
-std::unordered_map<std::string, std::string> HttpClient::headers() const { return _request.headers(); }
+std::unordered_map<std::string, std::string> HttpClient::headers() const {
+  return _request.headers();
+}
 
 HttpClient& HttpClient::headers(const std::unordered_map<std::string, std::string>& headers) {
   _request.headers(headers);
@@ -337,7 +351,9 @@ HttpClient& HttpClient::body(const std::string& body) {
   return *this;
 }
 
-std::vector<std::pair<std::string, std::string>> HttpClient::queries() const { return _request.queries(); }
+std::vector<std::pair<std::string, std::string>> HttpClient::queries() const {
+  return _request.queries();
+}
 HttpClient& HttpClient::queries(const std::vector<std::pair<std::string, std::string>>& queries) {
   _request.queries(queries);
   return *this;
