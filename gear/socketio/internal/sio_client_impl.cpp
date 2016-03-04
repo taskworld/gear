@@ -52,9 +52,9 @@ client_impl::client_impl()
 #if SIO_TLS
   m_client.set_tls_init_handler(std::bind(&client_impl::on_tls_init, this, _1));
 #endif
-  m_packet_mgr.set_decode_callback(std::bind(&client_impl::on_decode, this, _1));
-
-  m_packet_mgr.set_encode_callback(std::bind(&client_impl::on_encode, this, _1, _2));
+  // m_packet_mgr.set_decode_callback(std::bind(&client_impl::on_decode, this, _1));
+  //
+  // m_packet_mgr.set_encode_callback(std::bind(&client_impl::on_encode, this, _1, _2));
 }
 
 client_impl::~client_impl() {
@@ -138,7 +138,9 @@ void client_impl::sync_close() {
 }
 
 /*************************protected:*************************/
-void client_impl::send(packet& p) { m_packet_mgr.encode(p); }
+void client_impl::send(packet& p) {
+  // m_packet_mgr.encode(p);
+}
 
 void client_impl::remove_socket(string const& nsp) {
   lock_guard<mutex> guard(m_socket_mutex);
@@ -236,10 +238,11 @@ void client_impl::ping(const std::error_code& ec) {
     return;
   }
   packet p(packet::frame_ping);
-  m_packet_mgr.encode(p, [&](bool isBin, shared_ptr<const string> payload) {
-    lib::error_code ec;
-    this->m_client.send(this->m_con, *payload, frame::opcode::text, ec);
-  });
+  // TODO: send payload
+  // m_packet_mgr.encode(p, [&](bool isBin, shared_ptr<const string> payload) {
+  //   lib::error_code ec;
+  //   this->m_client.send(this->m_con, *payload, frame::opcode::text, ec);
+  // });
   if (m_ping_timer) {
     std::error_code e_code;
     m_ping_timer->expires_from_now(std::chrono::milliseconds(m_ping_interval), e_code);
@@ -382,7 +385,8 @@ void client_impl::on_message(connection_hdl con, client_type::message_ptr msg) {
         std::bind(&client_impl::timeout_pong, this, lib::placeholders::_1));
   }
   // Parse the incoming message according to socket.IO rules
-  m_packet_mgr.put_payload(msg->get_payload());
+  // TODO: receive message
+  // m_packet_mgr.put_payload(msg->get_payload());
 }
 
 void client_impl::on_handshake(message::ptr const& message) {
@@ -431,35 +435,35 @@ void client_impl::on_pong() {
   }
 }
 
-void client_impl::on_decode(packet const& p) {
-  switch (p.get_frame()) {
-    case packet::frame_message: {
-      socket::ptr so_ptr = get_socket_locked(p.get_nsp());
-      if (so_ptr) so_ptr->on_message_packet(p);
-      break;
-    }
-    case packet::frame_open:
-      this->on_handshake(p.get_message());
-      break;
-    case packet::frame_close:
-      // FIXME how to deal?
-      this->close_impl(close::status::abnormal_close, "End by server");
-      break;
-    case packet::frame_pong:
-      this->on_pong();
-      break;
+// void client_impl::on_decode(packet const& p) {
+//   switch (p.get_frame()) {
+//     case packet::frame_message: {
+//       socket::ptr so_ptr = get_socket_locked(p.get_nsp());
+//       if (so_ptr) so_ptr->on_message_packet(p);
+//       break;
+//     }
+//     case packet::frame_open:
+//       this->on_handshake(p.get_message());
+//       break;
+//     case packet::frame_close:
+//       // FIXME how to deal?
+//       this->close_impl(close::status::abnormal_close, "End by server");
+//       break;
+//     case packet::frame_pong:
+//       this->on_pong();
+//       break;
+//
+//     default:
+//       break;
+//   }
+// }
 
-    default:
-      break;
-  }
-}
-
-void client_impl::on_encode(bool isBinary, shared_ptr<const string> const& payload) {
-  LOG("encoded payload length:" << payload->length() << endl);
-  m_client.get_io_service().dispatch(
-      std::bind(&client_impl::send_impl, this, payload,
-                isBinary ? frame::opcode::binary : frame::opcode::text));
-}
+// void client_impl::on_encode(bool isBinary, shared_ptr<const string> const& payload) {
+//   LOG("encoded payload length:" << payload->length() << endl);
+//   m_client.get_io_service().dispatch(
+//       std::bind(&client_impl::send_impl, this, payload,
+//                 isBinary ? frame::opcode::binary : frame::opcode::text));
+// }
 
 void client_impl::clear_timers() {
   LOG("clear timers" << endl);
@@ -477,7 +481,7 @@ void client_impl::clear_timers() {
 void client_impl::reset_states() {
   m_client.reset();
   m_sid.clear();
-  m_packet_mgr.reset();
+  // m_packet_mgr.reset();
 }
 
 #if SIO_TLS

@@ -145,8 +145,8 @@ class client_impl {
 
   void sockets_invoke_void(void (sio::socket::*fn)(void));
 
-  void on_decode(packet const& pack);
-  void on_encode(bool isBinary, shared_ptr<const string> const& payload);
+  // void on_decode(packet const& pack);
+  // void on_encode(bool isBinary, shared_ptr<const string> const& payload);
 
   // websocket callbacks
   void on_fail(connection_hdl con);
@@ -185,7 +185,7 @@ class client_impl {
 
   std::unique_ptr<std::thread> m_network_thread;
 
-  packet_manager m_packet_mgr;
+  // packet_manager m_packet_mgr;
 
   std::unique_ptr<system_timer> m_ping_timer;
 
