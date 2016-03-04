@@ -30,6 +30,10 @@ class HttpClient::impl {
 
   friend class HttpClient;
 
+  void cancel(){
+    _handler = [&](const gear::HttpRequest, const gear::HttpResponse) {};
+  }
+
  private:
   static std::unique_ptr<impl> execute(asio::io_context& ioContext, asio::ssl::context& context,
                                        const HttpRequest& request,
@@ -259,6 +263,10 @@ void HttpClient::execute(const completion_handler& handler) {
   _thread = std::make_unique<std::thread>(&HttpClient::run, this);
   _request = gear::HttpRequest();
   applyConfig();
+}
+
+void HttpClient::cancel() {
+  _pimpl->cancel();
 }
 
 void HttpClient::reset() {
