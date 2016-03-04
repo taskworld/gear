@@ -2,7 +2,6 @@ CMakeFiles
 CMakeCache.txt
 sample
 runTests
-*.a
 *.cmake
 **/Makefile
 
