@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.3)
 
-file(GLOB _gear_SOURCES http/*.cpp socketio/*.cpp socketio/internal/*.cpp)
-file(GLOB _gear_HEADERS http/*.hpp socketio/*.hpp socketio/*.h socketio/internal/*.h)
+file(GLOB _gear_SOURCES http/*.cpp socket/*.cpp socketio/*.cpp socketio/internal/*.cpp )
+file(GLOB _gear_HEADERS http/*.hpp socket/*.hpp socketio/*.hpp socketio/*.h socketio/internal/*.h)
 
 set(VENDOR_DIR ${CMAKE_SOURCE_DIR}/../vendors)
 

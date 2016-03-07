@@ -62,12 +62,12 @@ class packet {
 
   type get_type() const;
 
-  // bool parse(string const& payload_ptr);  // return true if need to parse buffer.
-  //
-  // bool parse_buffer(string const& buf_payload);
-  //
-  // bool accept(string& payload_ptr,
-  //             vector<shared_ptr<const string> >& buffers);  // return true if has binary buffers.
+  bool parse(string const& payload_ptr);  // return true if need to parse buffer.
+
+  bool parse_buffer(string const& buf_payload);
+
+  bool accept(string& payload_ptr,
+              vector<shared_ptr<const string> >& buffers);  // return true if has binary buffers.
 
   string const& get_nsp() const;
 
