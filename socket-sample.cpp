@@ -106,7 +106,7 @@ MAIN_FUNC {
   h.setOpenListener(std::bind(&connection_listener::on_connected, &l));
   h.setCloseListener(std::bind(&connection_listener::on_close, &l, std::placeholders::_1));
   h.setFailListener(std::bind(&connection_listener::on_fail, &l));
-  h.connect("http://127.0.0.1:3000");
+  h.connect("https://127.0.0.1:3000");
   _lock.lock();
   if (!connect_finish) {
     _cond.wait(_lock);

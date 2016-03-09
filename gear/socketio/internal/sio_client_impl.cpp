@@ -49,9 +49,7 @@ client_impl::client_impl()
   m_client.set_close_handler(std::bind(&client_impl::on_close, this, _1));
   m_client.set_fail_handler(std::bind(&client_impl::on_fail, this, _1));
   m_client.set_message_handler(std::bind(&client_impl::on_message, this, _1, _2));
-#if SIO_TLS
   m_client.set_tls_init_handler(std::bind(&client_impl::on_tls_init, this, _1));
-#endif
   m_packet_mgr.set_decode_callback(std::bind(&client_impl::on_decode, this, _1));
 
   m_packet_mgr.set_encode_callback(std::bind(&client_impl::on_encode, this, _1, _2));
@@ -169,11 +167,7 @@ void client_impl::connect_impl(const string& uri, const string& queryString) {
   do {
     websocketpp::uri uo(uri);
     ostringstream ss;
-#if SIO_TLS
     ss << "wss://";
-#else
-    ss << "ws://";
-#endif
     if (m_sid.size() == 0) {
       ss << uo.get_host() << ":" << uo.get_port()
          << "/socket.io/?EIO=4&transport=websocket&t=" << time(NULL) << queryString;
@@ -482,7 +476,6 @@ void client_impl::reset_states() {
   m_packet_mgr.reset();
 }
 
-#if SIO_TLS
 client_impl::context_ptr client_impl::on_tls_init(connection_hdl conn) {
   context_ptr ctx = context_ptr(new asio::ssl::context(asio::ssl::context::tlsv1));
   std::error_code ec;
@@ -495,5 +488,4 @@ client_impl::context_ptr client_impl::on_tls_init(connection_hdl conn) {
 
   return ctx;
 }
-#endif
 }
