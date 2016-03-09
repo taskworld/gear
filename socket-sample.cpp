@@ -103,9 +103,9 @@ MAIN_FUNC {
   sio::client h;
   connection_listener l(h);
 
-  h.set_open_listener(std::bind(&connection_listener::on_connected, &l));
-  h.set_close_listener(std::bind(&connection_listener::on_close, &l, std::placeholders::_1));
-  h.set_fail_listener(std::bind(&connection_listener::on_fail, &l));
+  h.setOpenListener(std::bind(&connection_listener::on_connected, &l));
+  h.setCloseListener(std::bind(&connection_listener::on_close, &l, std::placeholders::_1));
+  h.setFailListener(std::bind(&connection_listener::on_fail, &l));
   h.connect("http://127.0.0.1:3000");
   _lock.lock();
   if (!connect_finish) {
@@ -173,7 +173,7 @@ Login:
     }
   }
   HIGHLIGHT("Closing...");
-  h.sync_close();
-  h.clear_con_listeners();
+  h.syncClose();
+  h.clearConnectionListeners();
   return 0;
 }

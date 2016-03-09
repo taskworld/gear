@@ -6,84 +6,77 @@
 
 #ifndef SIO_CLIENT_H
 #define SIO_CLIENT_H
-#include <string>
-#include <functional>
 #include "sio_message.h"
 #include "sio_socket.h"
+#include <functional>
+#include <string>
 
-namespace sio
-{
-    class client_impl;
-    
-    class client {
-    public:
-        enum close_reason
-        {
-            close_reason_normal,
-            close_reason_drop
-        };
-        
-        typedef std::function<void(void)> con_listener;
-        
-        typedef std::function<void(close_reason const& reason)> close_listener;
+namespace sio {
+class client_impl;
 
-        typedef std::function<void(unsigned, unsigned)> reconnect_listener;
-        
-        typedef std::function<void(std::string const& nsp)> socket_listener;
-        
-        client();
-        ~client();
-        
-        //set listeners and event bindings.
-        void set_open_listener(con_listener const& l);
-        
-        void set_fail_listener(con_listener const& l);
-        
-        void set_reconnecting_listener(con_listener const& l);
+class client {
+ public:
+  enum close_reason { close_reason_normal, close_reason_drop };
 
-        void set_reconnect_listener(reconnect_listener const& l);
+  typedef std::function<void(void)> connectionListener;
 
-        void set_close_listener(close_listener const& l);
-        
-        void set_socket_open_listener(socket_listener const& l);
-        
-        void set_socket_close_listener(socket_listener const& l);
-        
-        void clear_con_listeners();
-        
-        void clear_socket_listeners();
-        
-        // Client Functions - such as send, etc.
-        void connect(const std::string& uri);
+  typedef std::function<void(close_reason const& reason)> closeListener;
 
-        void connect(const std::string& uri, const std::map<std::string,std::string>& query);
+  typedef std::function<void(unsigned, unsigned)> reconnectListener;
 
-        void set_reconnect_attempts(int attempts);
+  typedef std::function<void(std::string const& nsp)> socketListener;
 
-        void set_reconnect_delay(unsigned millis);
+  client();
+  ~client();
 
-        void set_reconnect_delay_max(unsigned millis);
-        
-        sio::socket::ptr const& socket(const std::string& nsp = "");
-        
-        // Closes the connection
-        void close();
-        
-        void sync_close();
-        
-        bool opened() const;
-        
-        std::string const& get_sessionid() const;
-        
-    private:
-        //disable copy constructor and assign operator.
-        client(client const& cl){}
-        void operator=(client const& cl){}
-        
-        client_impl* m_impl;
-    };
-    
+  // set listeners and event bindings.
+  void setOpenListener(connectionListener const& l);
+
+  void setFailListener(connectionListener const& l);
+
+  void setReconnectingListener(connectionListener const& l);
+
+  void setReconnectListener(reconnectListener const& l);
+
+  void setCloseListener(closeListener const& l);
+
+  void setSocketOpenListener(socketListener const& l);
+
+  void setSocketCloseListener(socketListener const& l);
+
+  void clearConnectionListeners();
+
+  void clearSocketListeners();
+
+  // Client Functions - such as send, etc.
+  void connect(const std::string& uri);
+
+  void connect(const std::string& uri, const std::map<std::string, std::string>& query);
+
+  void setReconnectAttempts(int attempts);
+
+  void setReconnectDelay(unsigned millis);
+
+  void setReconnectDelayMax(unsigned millis);
+
+  sio::socket::ptr const& socket(const std::string& nsp = "");
+
+  // Closes the connection
+  void close();
+
+  void syncClose();
+
+  bool opened() const;
+
+  std::string const& getSessionId() const;
+
+ private:
+  // disable copy constructor and assign operator.
+  client(client const& cl) = delete;
+  void operator=(client const& cl) = delete;
+
+  unique_ptr<client_impl> m_impl;
+};
 }
 
-
-#endif // __SIO_CLIENT__H__
+#endif  // __SIO_CLIENT__H__

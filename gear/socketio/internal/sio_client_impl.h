@@ -46,30 +46,30 @@ using system_timer = asio::basic_waitable_timer<std::chrono::system_clock>;
 typedef websocketpp::client<client_config> client_type;
 
 class client_impl {
+ public:
+  client_impl();
+  ~client_impl();
+
  protected:
   enum con_state { con_opening, con_opened, con_closing, con_closed };
-
-  client_impl();
-
-  ~client_impl();
 
 // set listeners and event bindings.
 #define SYNTHESIS_SETTER(__TYPE__, __FIELD__) \
   void set_##__FIELD__(__TYPE__ const& l) { m_##__FIELD__ = l; }
 
-  SYNTHESIS_SETTER(client::con_listener, open_listener)
+  SYNTHESIS_SETTER(client::connectionListener, open_listener)
 
-  SYNTHESIS_SETTER(client::con_listener, fail_listener)
+  SYNTHESIS_SETTER(client::connectionListener, fail_listener)
 
-  SYNTHESIS_SETTER(client::reconnect_listener, reconnect_listener)
+  SYNTHESIS_SETTER(client::reconnectListener, reconnect_listener)
 
-  SYNTHESIS_SETTER(client::con_listener, reconnecting_listener)
+  SYNTHESIS_SETTER(client::connectionListener, reconnecting_listener)
 
-  SYNTHESIS_SETTER(client::close_listener, close_listener)
+  SYNTHESIS_SETTER(client::closeListener, close_listener)
 
-  SYNTHESIS_SETTER(client::socket_listener, socket_open_listener)
+  SYNTHESIS_SETTER(client::socketListener, socket_open_listener)
 
-  SYNTHESIS_SETTER(client::socket_listener, socket_close_listener)
+  SYNTHESIS_SETTER(client::socketListener, socket_close_listener)
 
 #undef SYNTHESIS_SETTER
 
@@ -195,14 +195,14 @@ class client_impl {
 
   con_state m_con_state;
 
-  client::con_listener m_open_listener;
-  client::con_listener m_fail_listener;
-  client::con_listener m_reconnecting_listener;
-  client::reconnect_listener m_reconnect_listener;
-  client::close_listener m_close_listener;
+  client::connectionListener m_open_listener;
+  client::connectionListener m_fail_listener;
+  client::connectionListener m_reconnecting_listener;
+  client::reconnectListener m_reconnect_listener;
+  client::closeListener m_close_listener;
 
-  client::socket_listener m_socket_open_listener;
-  client::socket_listener m_socket_close_listener;
+  client::socketListener m_socket_open_listener;
+  client::socketListener m_socket_close_listener;
 
   std::map<const std::string, socket::ptr> m_sockets;
 

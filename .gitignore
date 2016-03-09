@@ -2,6 +2,7 @@ CMakeFiles
 CMakeCache.txt
 sample
 runTests
+gear/*.a
+vendors/gtest/**/*.a
 *.cmake
 **/Makefile
-

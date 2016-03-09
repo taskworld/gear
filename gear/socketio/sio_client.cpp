@@ -12,35 +12,31 @@ using asio::chrono::milliseconds;
 using std::stringstream;
 
 namespace sio {
-client::client() : m_impl(new client_impl()) {}
+client::client() : m_impl(std::make_unique<client_impl>()) {}
 
-client::~client() { delete m_impl; }
+client::~client() = default;
 
-void client::set_open_listener(con_listener const& l) { m_impl->set_open_listener(l); }
+void client::setOpenListener(connectionListener const& l) { m_impl->set_open_listener(l); }
 
-void client::set_fail_listener(con_listener const& l) { m_impl->set_fail_listener(l); }
+void client::setFailListener(connectionListener const& l) { m_impl->set_fail_listener(l); }
 
-void client::set_close_listener(close_listener const& l) { m_impl->set_close_listener(l); }
+void client::setCloseListener(closeListener const& l) { m_impl->set_close_listener(l); }
 
-void client::set_socket_open_listener(socket_listener const& l) {
-  m_impl->set_socket_open_listener(l);
-}
+void client::setSocketOpenListener(socketListener const& l) { m_impl->set_socket_open_listener(l); }
 
-void client::set_reconnect_listener(reconnect_listener const& l) {
-  m_impl->set_reconnect_listener(l);
-}
+void client::setReconnectListener(reconnectListener const& l) { m_impl->set_reconnect_listener(l); }
 
-void client::set_reconnecting_listener(con_listener const& l) {
+void client::setReconnectingListener(connectionListener const& l) {
   m_impl->set_reconnecting_listener(l);
 }
 
-void client::set_socket_close_listener(socket_listener const& l) {
+void client::setSocketCloseListener(socketListener const& l) {
   m_impl->set_socket_close_listener(l);
 }
 
-void client::clear_con_listeners() { m_impl->clear_con_listeners(); }
+void client::clearConnectionListeners() { m_impl->clear_con_listeners(); }
 
-void client::clear_socket_listeners() { m_impl->clear_socket_listeners(); }
+void client::clearSocketListeners() { m_impl->clear_socket_listeners(); }
 
 void client::connect(const std::string& uri) {
   const std::map<string, string> query;
@@ -56,15 +52,15 @@ socket::ptr const& client::socket(const std::string& nsp) { return m_impl->socke
 // Closes the connection
 void client::close() { m_impl->close(); }
 
-void client::sync_close() { m_impl->sync_close(); }
+void client::syncClose() { m_impl->sync_close(); }
 
 bool client::opened() const { return m_impl->opened(); }
 
-std::string const& client::get_sessionid() const { return m_impl->get_sessionid(); }
+std::string const& client::getSessionId() const { return m_impl->get_sessionid(); }
 
-void client::set_reconnect_attempts(int attempts) { m_impl->set_reconnect_attempts(attempts); }
+void client::setReconnectAttempts(int attempts) { m_impl->set_reconnect_attempts(attempts); }
 
-void client::set_reconnect_delay(unsigned millis) { m_impl->set_reconnect_delay(millis); }
+void client::setReconnectDelay(unsigned millis) { m_impl->set_reconnect_delay(millis); }
 
-void client::set_reconnect_delay_max(unsigned millis) { m_impl->set_reconnect_delay_max(millis); }
+void client::setReconnectDelayMax(unsigned millis) { m_impl->set_reconnect_delay_max(millis); }
 }
