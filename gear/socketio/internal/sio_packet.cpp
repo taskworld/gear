@@ -7,35 +7,26 @@
 #include "sio_packet.h"
 #include "json.hpp"
 #include <cassert>
-// #include <rapidjson/document.h>
-// #include <rapidjson/encodedstream.h>
-// #include <rapidjson/writer.h>
 
 #define kBIN_PLACE_HOLDER "_placeholder"
 
 namespace sio {
-// using namespace rapidjson;
 using json = nlohmann::json;
 using namespace std;
 void accept_message(message const& msg, json& j, vector<shared_ptr<const string> >& buffers);
 
-// void accept_binary_message(binary_message const& msg, Value& val, Document& doc,
-//                            vector<shared_ptr<const string> >& buffers) {
-//   val.SetObject();
-//   Value boolVal;
-//   boolVal.SetBool(true);
-//   val.AddMember(kBIN_PLACE_HOLDER, boolVal, doc.GetAllocator());
-//   Value numVal;
-//   numVal.SetInt((int)buffers.size());
-//   val.AddMember("num", numVal, doc.GetAllocator());
-//   // FIXME can not avoid binary copy here.
-//   shared_ptr<string> write_buffer = make_shared<string>();
-//   write_buffer->reserve(msg.get_binary()->size() + 1);
-//   char frame_char = packet::frame_message;
-//   write_buffer->append(&frame_char, 1);
-//   write_buffer->append(*(msg.get_binary()));
-//   buffers.push_back(write_buffer);
-// }
+void accept_binary_message(binary_message const& msg, json& j,
+                           vector<shared_ptr<const string> >& buffers) {
+  j[kBIN_PLACE_HOLDER] = true;
+  j["num"] = (int)buffers.size();
+  // FIXME can not avoid binary copy here.
+  shared_ptr<string> write_buffer = make_shared<string>();
+  write_buffer->reserve(msg.get_binary()->size() + 1);
+  char frame_char = packet::frame_message;
+  write_buffer->append(&frame_char, 1);
+  write_buffer->append(*(msg.get_binary()));
+  buffers.push_back(write_buffer);
+}
 
 void accept_array_element_message(message const& msg, json& j) {
   const message* msg_ptr = &msg;
@@ -84,6 +75,7 @@ void accept_primitive_element_message(message const& msg, json& j, string const&
       break;
     }
     case message::flag_null: {
+      j[key] = nullptr;
       break;
     }
     default:
@@ -109,7 +101,9 @@ void accept_object_message(object_message const& msg, json& jObject,
       accept_object_message(*(static_cast<const object_message*>(&msg)), jChildObject, buffers);
       jObject[it->first] = jChildObject;
     } else if (msg.get_flag() == message::flag_binary) {
-      // accept_binary_message()
+      json jChildObject = json::object();
+      accept_binary_message(*(static_cast<const binary_message*>(&msg)), jChildObject, buffers);
+      jObject[it->first] = jChildObject;
     } else if (msg.get_flag() == message::flag_array) {
       json jChildArray = json::array();
       accept_array_message(*(static_cast<const array_message*>(&msg)), jChildArray, buffers);
@@ -124,8 +118,8 @@ void accept_message(message const& msg, json& j, vector<shared_ptr<const string>
   const message* msg_ptr = &msg;
   switch (msg.get_flag()) {
     case message::flag_binary: {
-      //   accept_binary_message(*(static_cast<const binary_message*>(msg_ptr)), val, doc,
-      //   buffers);
+      j = json::object();
+      accept_binary_message(*(static_cast<const binary_message*>(msg_ptr)), j, buffers);
       break;
     }
     case message::flag_array: {
@@ -158,17 +152,14 @@ message::ptr from_json(const json& j, vector<shared_ptr<const string> > const& b
     return ptr;
   } else if (j.is_object()) {
     // binary placeholder
-    // for (json::iterator it = j.begin(); it != j.end(); ++it) {
-    //
-    // }
-    // auto mem_it = value.FindMember(kBIN_PLACE_HOLDER);
-    // if (mem_it != value.MemberEnd() && mem_it->value.GetBool()) {
-    //   int num = value["num"].GetInt();
-    //   if (num >= 0 && num < static_cast<int>(buffers.size())) {
-    //     return binary_message::create(buffers[num]);
-    //   }
-    //   return message::ptr();
-    // }
+    auto placeHolder = j.find(kBIN_PLACE_HOLDER);
+    if (placeHolder != j.end() && placeHolder.value()) {
+      int num = j["num"];
+      if (num >= 0 && num < static_cast<int>(buffers.size())) {
+        return binary_message::create(buffers[num]);
+      }
+      return message::ptr();
+    }
 
     // real object message.
     message::ptr ptr = object_message::create();
