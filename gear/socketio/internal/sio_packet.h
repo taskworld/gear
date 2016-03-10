@@ -42,8 +42,8 @@ class packet {
   frame_type _frame;
   int _type;
   string _nsp;
-  int _pack_id;
   message::ptr _message;
+  int _pack_id;
   unsigned _pending_buffers;
   vector<shared_ptr<const string> > _buffers;
 

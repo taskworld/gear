@@ -21,14 +21,12 @@ class ConnectionMetaData final {
 
   ConnectionMetaData(websocketpp::connection_hdl hdl, string uri);
 
-  void onOpened(client *c, websocketpp::connection_hdl hdl, int retry_attempt,
-                function<void(client::connection_ptr)> onOpened);
+  void onOpened(client *c, websocketpp::connection_hdl hdl, function<void(client::connection_ptr)> onOpened);
 
   void onFailed(client *c, websocketpp::connection_hdl hdl, WebSocketEndpoint *endpoint,
                 function<void(client::connection_ptr)> onFailed);
 
-  void onClosed(client *c, websocketpp::connection_hdl hdl, WebSocketEndpoint *endpoint,
-                function<void(client::connection_ptr)> onClosed);
+  void onClosed(client *c, websocketpp::connection_hdl hdl, function<void(client::connection_ptr)> onClosed);
 
   void onMessageReceived(
       websocketpp::connection_hdl, client::message_ptr msg,

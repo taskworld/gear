@@ -14,6 +14,10 @@ namespace sio {
 using json = nlohmann::json;
 using namespace std;
 void accept_message(message const& msg, json& j, vector<shared_ptr<const string> >& buffers);
+void accept_object_message(object_message const& msg, json& jObject,
+                           vector<shared_ptr<const string> >& buffers);
+void accept_array_message(array_message const& msg, json& jArray,
+                          vector<shared_ptr<const string> >& buffers);
 
 void accept_binary_message(binary_message const& msg, json& j,
                            vector<shared_ptr<const string> >& buffers) {
@@ -28,7 +32,8 @@ void accept_binary_message(binary_message const& msg, json& j,
   buffers.push_back(write_buffer);
 }
 
-void accept_array_element_message(message const& msg, json& j) {
+void accept_array_element_message(message const& msg, json& j,
+                                  vector<shared_ptr<const string> >& buffers) {
   const message* msg_ptr = &msg;
   switch (msg.get_flag()) {
     case message::flag_integer: {
@@ -47,7 +52,20 @@ void accept_array_element_message(message const& msg, json& j) {
       j.push_back((*(static_cast<const bool_message*>(msg_ptr))).get_bool());
       break;
     }
+    case message::flag_object: {
+      json jChild = json::object();
+      accept_object_message((*(static_cast<const object_message*>(msg_ptr))), jChild, buffers);
+      j.push_back(jChild);
+      break;
+    }
+    case message::flag_array: {
+      json jChild = json::array();
+      accept_array_message((*(static_cast<const array_message*>(msg_ptr))), jChild, buffers);
+      j.push_back(jChild);
+      break;
+    }
     case message::flag_null: {
+      j.push_back(nullptr);
       break;
     }
     default:
@@ -87,7 +105,7 @@ void accept_array_message(array_message const& msg, json& jArray,
                           vector<shared_ptr<const string> >& buffers) {
   for (vector<message::ptr>::const_iterator it = msg.get_vector().begin();
        it != msg.get_vector().end(); ++it) {
-    accept_array_element_message(*(*it), jArray);
+    accept_array_element_message(*(*it), jArray, buffers);
   }
 }
 

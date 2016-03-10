@@ -5,8 +5,11 @@ file(GLOB _gear_HEADERS http/*.hpp socket/*.hpp socketio/*.hpp socketio/*.h sock
 
 set(VENDOR_DIR ${CMAKE_SOURCE_DIR}/../vendors)
 
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Werror -Wextra -Wno-extern-c-compat -Wno-missing-field-initializers -Wno-shorten-64-to-32")
+
 add_definitions(-DASIO_STANDALONE -std=c++14 -stdlib=libc++)
 include_directories(${VENDOR_DIR}/asio/asio/include ${VENDOR_DIR}/openssl/lib/include)
+
 
 # For OSX build
 add_library(_gear STATIC ${_gear_SOURCES} ${_gear_HEADERS})

@@ -92,8 +92,8 @@ class socket {
 
  private:
   // disable copy constructor and assign operator.
-  socket(socket const& sock) {}
-  void operator=(socket const& sock) {}
+  socket(socket const& sock) = delete;
+  void operator=(socket const& sock) = delete;
 
   class impl;
   impl* m_impl;

@@ -4,8 +4,7 @@ namespace gear {
 ConnectionMetaData::ConnectionMetaData(websocketpp::connection_hdl hdl, string uri)
     : _hdl(hdl), _uri(uri) {}
 
-void ConnectionMetaData::onOpened(client *c, websocketpp::connection_hdl hdl, int retry_attempt,
-                                  function<void(client::connection_ptr)> onOpened) {
+void ConnectionMetaData::onOpened(client *c, websocketpp::connection_hdl hdl, function<void(client::connection_ptr)> onOpened) {
   _status = status::open;
 
   client::connection_ptr con = c->get_con_from_hdl(hdl);
@@ -31,7 +30,6 @@ void ConnectionMetaData::onFailed(client *c, websocketpp::connection_hdl hdl,
 }
 
 void ConnectionMetaData::onClosed(client *c, websocketpp::connection_hdl hdl,
-                                  WebSocketEndpoint *endpoint,
                                   function<void(client::connection_ptr)> onClosed) {
   _status = status::close;
   client::connection_ptr con = c->get_con_from_hdl(hdl);
@@ -124,13 +122,13 @@ void WebSocketEndpoint::connect(const string &uri) {
   _connection = make_shared<ConnectionMetaData>(con->get_handle(), uri);
 
   con->set_open_handler(bind(&ConnectionMetaData::onOpened, _connection, &_endpoint,
-                             placeholders::_1, _retryAttemptCount, _openHandler));
+                             placeholders::_1, _openHandler));
 
   con->set_fail_handler(bind(&ConnectionMetaData::onFailed, _connection, &_endpoint,
                              placeholders::_1, this, _failHandler));
 
   con->set_close_handler(bind(&ConnectionMetaData::onClosed, _connection, &_endpoint,
-                              placeholders::_1, this, _closeHandler));
+                              placeholders::_1, _closeHandler));
 
   con->set_message_handler(bind(&ConnectionMetaData::onMessageReceived, _connection,
                                 placeholders::_1, placeholders::_2, _messageHandler));

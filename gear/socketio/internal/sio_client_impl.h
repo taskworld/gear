@@ -168,6 +168,7 @@ class client_impl {
   std::string m_base_url;
   std::string m_query_string;
 
+  con_state m_con_state;
   unsigned int m_ping_interval;
   unsigned int m_ping_timeout;
 
@@ -181,7 +182,6 @@ class client_impl {
 
   std::unique_ptr<system_timer> m_reconn_timer;
 
-  con_state m_con_state;
 
   client::connectionListener m_open_listener;
   client::connectionListener m_fail_listener;
@@ -196,13 +196,10 @@ class client_impl {
 
   std::mutex m_socket_mutex;
 
-  unsigned m_reconn_delay;
-
-  unsigned m_reconn_delay_max;
-
   unsigned m_reconn_attempts;
-
   unsigned m_reconn_made;
+  unsigned m_reconn_delay;
+  unsigned m_reconn_delay_max;
 
   friend class sio::client;
   friend class sio::socket;
