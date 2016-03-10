@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.3)
 
-set(SOURCE_FILES sample.cpp)
+set(SOURCE_FILES socket-sample.cpp)
 set(VENDOR_DIRS ${CMAKE_SOURCE_DIR}/vendors)
 
 add_definitions(-DASIO_STANDALONE -std=c++14 -stdlib=libc++)
