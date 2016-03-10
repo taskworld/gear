@@ -55,7 +55,8 @@ class HttpClient final {
   void httpPatch(const completion_handler& handler);
   void execute(const HttpRequest& requestExecute, const completion_handler& handler);
   void execute(const completion_handler& handler);
-
+  void cancel();
+  
  private:
   HttpClient();
   void reset();

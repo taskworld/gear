@@ -30,6 +30,14 @@ class HttpClient::impl {
 
   friend class HttpClient;
 
+  void cancel(){
+    _socket.async_shutdown(bind(&impl::handleShutdown, this, std::placeholders::_1));
+  }
+
+  void handleShutdown(const std::error_code&) {
+    _handler = std::experimental::nullopt;
+  }
+
  private:
   static std::unique_ptr<impl> execute(asio::io_context& ioContext, asio::ssl::context& context,
                                        const HttpRequest& request,
@@ -127,14 +135,20 @@ class HttpClient::impl {
       handleReadBody();
     } else if (error == asio::error::eof || error.value() == 1) {
       _response.body(_responseStream.str());
-      _handler(_request, _response);
+      handleComplete();
     }
   }
 
   void handleError(const std::error_code& error) {
     _response.message(error.message());
     _response.code(error.value());
-    _handler(_request, _response);
+    handleComplete();
+  }
+
+  void handleComplete(){
+      if(_handler){
+         (*_handler)(_request,_response);
+      }
   }
 
   std::string writeRequest() {
@@ -207,7 +221,7 @@ class HttpClient::impl {
   asio::streambuf _streamResponse;
   std::ostringstream _responseStream;
   std::unique_ptr<std::thread> _thread;
-  completion_handler _handler;
+  std::experimental::optional<completion_handler> _handler;
 };
 
 HttpClient::HttpClient()
@@ -259,6 +273,10 @@ void HttpClient::execute(const completion_handler& handler) {
   _thread = std::make_unique<std::thread>(&HttpClient::run, this);
   _request = gear::HttpRequest();
   applyConfig();
+}
+
+void HttpClient::cancel() {
+  _pimpl->cancel();
 }
 
 void HttpClient::reset() {

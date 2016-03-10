@@ -17,6 +17,21 @@ TEST(asio_http, set_request_method_by_string) {
   EXPECT_EQ(request.method(), gear::HttpMethod::PATCH);
 }
 
+TEST(asio_http, get_then_cancel) {
+  Semaphore s;
+  std::string status = "NONE";
+  gear::HttpClient client("httpbin.org");
+
+  client.path("/delay/5")
+      .httpGet([&](const gear::HttpRequest, const gear::HttpResponse response) {
+        status = (response.code() == 200) ? "OK" : "FAIL";
+       s.notify();
+      });
+  client.cancel();
+  s.waitFor(chrono::seconds(15));
+  EXPECT_EQ(status, "NONE");
+}
+
 TEST(asio_http, get_unknown_host) {
   Semaphore s;
   std::string status;
