@@ -231,7 +231,7 @@ void client_impl::ping(const std::error_code& ec) {
   }
   packet p(packet::frame_ping);
   // TODO: send payload
-  m_packet_mgr.encode(p, [&](bool isBin, shared_ptr<const string> payload) {
+  m_packet_mgr.encode(p, [&](bool /*isBin*/, shared_ptr<const string> payload) {
     std::error_code ec;
     this->m_client.send(this->m_con, *payload, frame::opcode::text, ec);
   });
@@ -301,7 +301,7 @@ void client_impl::sockets_invoke_void(void (sio::socket::*fn)(void)) {
   }
 }
 
-void client_impl::on_fail(connection_hdl con) {
+void client_impl::on_fail(connection_hdl /*con*/) {
   m_con.reset();
   m_con_state = con_closed;
   this->sockets_invoke_void(&sio::socket::on_disconnect);
@@ -369,7 +369,7 @@ void client_impl::on_close(connection_hdl con) {
   }
 }
 
-void client_impl::on_message(connection_hdl con, client_type::message_ptr msg) {
+void client_impl::on_message(connection_hdl /*con*/, client_type::message_ptr msg) {
   if (m_ping_timeout_timer) {
     std::error_code ec;
     m_ping_timeout_timer->expires_from_now(std::chrono::milliseconds(m_ping_timeout), ec);
@@ -476,8 +476,8 @@ void client_impl::reset_states() {
   m_packet_mgr.reset();
 }
 
-client_impl::context_ptr client_impl::on_tls_init(connection_hdl conn) {
-  context_ptr ctx = context_ptr(new asio::ssl::context(asio::ssl::context::tlsv1));
+client_impl::context_ptr client_impl::on_tls_init(connection_hdl /*conn*/) {
+  context_ptr ctx = context_ptr(new asio::ssl::context(asio::ssl::context::tlsv12));
   std::error_code ec;
   ctx->set_options(asio::ssl::context::default_workarounds | asio::ssl::context::no_sslv2 |
                        asio::ssl::context::single_dh_use,

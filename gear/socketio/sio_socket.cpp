@@ -130,8 +130,8 @@ class socket::impl {
 
   sio::client_impl* m_client;
 
-  bool m_connected;
   std::string m_nsp;
+  bool m_connected;
 
   std::map<unsigned int, std::function<void(message::list const&)> > m_acks;
 
@@ -362,7 +362,7 @@ void socket::impl::on_socketio_event(const std::string& nsp, int msgId, const st
   }
 }
 
-void socket::impl::ack(int msgId, const string& name, const message::list& ack_message) {
+void socket::impl::ack(int msgId, const string& /*name*/, const message::list& ack_message) {
   packet p(m_nsp, ack_message.to_array_message(), msgId, true);
   send_packet(p);
 }

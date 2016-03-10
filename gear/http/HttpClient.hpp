@@ -63,8 +63,8 @@ class HttpClient final {
   void run();
   void applyConfig();
 
-  std::unique_ptr<asio::ssl::context> _sslContext;
   std::unique_ptr<asio::io_context> _ioContext;
+  std::unique_ptr<asio::ssl::context> _sslContext;
   HttpRequest _request;
   HttpConfig _config;
   class impl;
