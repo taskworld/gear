@@ -43,8 +43,8 @@ client_impl::client_impl()
   m_client.init_asio();
 
   // Bind the clients we are using
-  using websocketpp::lib::placeholders::_1;
-  using websocketpp::lib::placeholders::_2;
+  using std::placeholders::_1;
+  using std::placeholders::_2;
   m_client.set_open_handler(std::bind(&client_impl::on_open, this, _1));
   m_client.set_close_handler(std::bind(&client_impl::on_close, this, _1));
   m_client.set_fail_handler(std::bind(&client_impl::on_fail, this, _1));
@@ -176,7 +176,7 @@ void client_impl::connect_impl(const string& uri, const string& queryString) {
          << "/socket.io/?EIO=4&transport=websocket&sid=" << m_sid << "&t=" << time(NULL)
          << queryString;
     }
-    lib::error_code ec;
+    std::error_code ec;
     client_type::connection_ptr con = m_client.get_connection(ss.str(), ec);
     if (ec) {
       m_client.get_alog().write(websocketpp::log::alevel::app,
@@ -201,7 +201,7 @@ void client_impl::close_impl(close::status::value const& code, string const& rea
   if (m_con.expired()) {
     cerr << "Error: No active session" << endl;
   } else {
-    lib::error_code ec;
+    std::error_code ec;
     m_client.close(m_con, code, reason, ec);
   }
 }
@@ -213,9 +213,9 @@ void client_impl::send_impl(shared_ptr<const string> const& payload_ptr,
     std::error_code timeout_ec;
     if (m_ping_timer) {
       m_ping_timer->expires_from_now(std::chrono::milliseconds(m_ping_interval), timeout_ec);
-      m_ping_timer->async_wait(std::bind(&client_impl::ping, this, lib::placeholders::_1));
+      m_ping_timer->async_wait(std::bind(&client_impl::ping, this, std::placeholders::_1));
     }
-    lib::error_code ec;
+    std::error_code ec;
     m_client.send(m_con, *payload_ptr, opcode, ec);
     if (ec) {
       cerr << "Send failed,reason:" << ec.message() << endl;
@@ -238,14 +238,14 @@ void client_impl::ping(const std::error_code& ec) {
   if (m_ping_timer) {
     std::error_code e_code;
     m_ping_timer->expires_from_now(std::chrono::milliseconds(m_ping_interval), e_code);
-    m_ping_timer->async_wait(std::bind(&client_impl::ping, this, lib::placeholders::_1));
+    m_ping_timer->async_wait(std::bind(&client_impl::ping, this, std::placeholders::_1));
   }
   if (!m_ping_timeout_timer) {
     m_ping_timeout_timer.reset(new system_timer(m_client.get_io_service()));
     std::error_code timeout_ec;
     m_ping_timeout_timer->expires_from_now(std::chrono::milliseconds(m_ping_timeout), timeout_ec);
     m_ping_timeout_timer->async_wait(
-        std::bind(&client_impl::timeout_pong, this, lib::placeholders::_1));
+        std::bind(&client_impl::timeout_pong, this, std::placeholders::_1));
   }
 }
 
@@ -314,7 +314,7 @@ void client_impl::on_fail(connection_hdl con) {
     std::error_code ec;
     m_reconn_timer->expires_from_now(std::chrono::milliseconds(delay), ec);
     m_reconn_timer->async_wait(
-        std::bind(&client_impl::timeout_reconnect, this, lib::placeholders::_1));
+        std::bind(&client_impl::timeout_reconnect, this, std::placeholders::_1));
   } else {
     if (m_fail_listener) m_fail_listener();
   }
@@ -333,7 +333,7 @@ void client_impl::on_open(connection_hdl con) {
 void client_impl::on_close(connection_hdl con) {
   LOG("Client Disconnected." << endl);
   m_con_state = con_closed;
-  lib::error_code ec;
+  std::error_code ec;
   close::status::value code = close::status::normal;
   client_type::connection_ptr conn_ptr = m_client.get_con_from_hdl(con, ec);
   if (ec) {
@@ -358,7 +358,7 @@ void client_impl::on_close(connection_hdl con) {
       std::error_code ec;
       m_reconn_timer->expires_from_now(std::chrono::milliseconds(delay), ec);
       m_reconn_timer->async_wait(
-          std::bind(&client_impl::timeout_reconnect, this, lib::placeholders::_1));
+          std::bind(&client_impl::timeout_reconnect, this, std::placeholders::_1));
       return;
     }
     reason = client::close_reason_drop;
@@ -374,7 +374,7 @@ void client_impl::on_message(connection_hdl con, client_type::message_ptr msg) {
     std::error_code ec;
     m_ping_timeout_timer->expires_from_now(std::chrono::milliseconds(m_ping_timeout), ec);
     m_ping_timeout_timer->async_wait(
-        std::bind(&client_impl::timeout_pong, this, lib::placeholders::_1));
+        std::bind(&client_impl::timeout_pong, this, std::placeholders::_1));
   }
   // Parse the incoming message according to socket.IO rules
   // TODO: receive message
@@ -409,7 +409,7 @@ void client_impl::on_handshake(message::ptr const& message) {
     std::error_code ec;
     m_ping_timer->expires_from_now(std::chrono::milliseconds(m_ping_interval), ec);
     if (ec) LOG("ec:" << ec.message() << endl);
-    m_ping_timer->async_wait(std::bind(&client_impl::ping, this, lib::placeholders::_1));
+    m_ping_timer->async_wait(std::bind(&client_impl::ping, this, std::placeholders::_1));
     LOG("On handshake,sid:" << m_sid << ",ping interval:" << m_ping_interval << ",ping timeout"
                             << m_ping_timeout << endl);
     return;

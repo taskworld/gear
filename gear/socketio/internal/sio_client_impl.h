@@ -156,7 +156,7 @@ class client_impl {
 
   void clear_timers();
 
-  typedef websocketpp::lib::shared_ptr<asio::ssl::context> context_ptr;
+  typedef std::shared_ptr<asio::ssl::context> context_ptr;
 
   context_ptr on_tls_init(connection_hdl con);
 
