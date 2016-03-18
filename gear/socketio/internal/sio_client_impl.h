@@ -38,6 +38,7 @@ typedef websocketpp::client<client_config> client_type;
 class client_impl {
  public:
   client_impl();
+  client_impl(asio::ssl::context::method method);
   ~client_impl();
 
  protected:
@@ -168,6 +169,7 @@ class client_impl {
   std::string m_base_url;
   std::string m_query_string;
 
+
   con_state m_con_state;
   unsigned int m_ping_interval;
   unsigned int m_ping_timeout;
@@ -200,6 +202,8 @@ class client_impl {
   unsigned m_reconn_made;
   unsigned m_reconn_delay;
   unsigned m_reconn_delay_max;
+
+  asio::ssl::context::method m_method;
 
   friend class sio::client;
   friend class sio::socket;

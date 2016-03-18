@@ -25,15 +25,16 @@ using namespace std;
 
 namespace sio {
 /*************************public:*************************/
-client_impl::client_impl()
+client_impl::client_impl(asio::ssl::context::method method)
     : m_con_state(con_closed),
       m_ping_interval(0),
       m_ping_timeout(0),
       m_network_thread(),
-      m_reconn_attempts(0xFFFFFFFF),
+      m_reconn_attempts(std::numeric_limits<unsigned int>::max()),
       m_reconn_made(0),
       m_reconn_delay(5000),
-      m_reconn_delay_max(25000) {
+      m_reconn_delay_max(25000),
+      m_method(method) {
   using websocketpp::log::alevel;
 #ifndef DEBUG
   m_client.clear_access_channels(alevel::all);
@@ -54,6 +55,8 @@ client_impl::client_impl()
 
   m_packet_mgr.set_encode_callback(std::bind(&client_impl::on_encode, this, _1, _2));
 }
+
+client_impl::client_impl() : client_impl(asio::ssl::context::sslv3) {}
 
 client_impl::~client_impl() {
   this->sockets_invoke_void(&sio::socket::on_close);
@@ -477,7 +480,7 @@ void client_impl::reset_states() {
 }
 
 client_impl::context_ptr client_impl::on_tls_init(connection_hdl /*conn*/) {
-  context_ptr ctx = context_ptr(new asio::ssl::context(asio::ssl::context::sslv3));
+  context_ptr ctx = context_ptr(new asio::ssl::context(m_method));
   std::error_code ec;
   ctx->set_options(asio::ssl::context::default_workarounds | asio::ssl::context::no_sslv2 |
                        asio::ssl::context::single_dh_use,

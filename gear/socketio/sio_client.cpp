@@ -14,6 +14,8 @@ using std::stringstream;
 namespace sio {
 client::client() : m_impl(std::make_unique<client_impl>()) {}
 
+client::client(asio::ssl::context::method method) : m_impl(std::make_unique<client_impl>(method)) {}
+
 client::~client() = default;
 
 void client::setOpenListener(connectionListener const& l) { m_impl->set_open_listener(l); }

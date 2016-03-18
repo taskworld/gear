@@ -100,7 +100,7 @@ void bind_events(socket::ptr& socket) {
 }
 
 MAIN_FUNC {
-  sio::client h;
+  sio::client h(asio::ssl::context::sslv3);
   connection_listener l(h);
 
   h.setOpenListener(std::bind(&connection_listener::on_connected, &l));
