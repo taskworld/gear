@@ -8,6 +8,7 @@
 #define SIO_CLIENT_H
 #include "sio_message.h"
 #include "sio_socket.h"
+#include <websocketpp/config/asio_client.hpp>
 #include <functional>
 #include <string>
 
@@ -27,6 +28,7 @@ class client {
   typedef std::function<void(std::string const& nsp)> socketListener;
 
   client();
+  client(asio::ssl::context::method);
   ~client();
 
   // set listeners and event bindings.
