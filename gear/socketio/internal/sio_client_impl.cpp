@@ -25,7 +25,7 @@ using namespace std;
 
 namespace sio {
 /*************************public:*************************/
-client_impl::client_impl(asio::ssl::context::method method)
+client_impl::client_impl(method method)
     : m_con_state(con_closed),
       m_ping_interval(0),
       m_ping_timeout(0),
@@ -56,7 +56,7 @@ client_impl::client_impl(asio::ssl::context::method method)
   m_packet_mgr.set_encode_callback(std::bind(&client_impl::on_encode, this, _1, _2));
 }
 
-client_impl::client_impl() : client_impl(asio::ssl::context::sslv3) {}
+client_impl::client_impl() : client_impl(method::ssl) {}
 
 client_impl::~client_impl() {
   this->sockets_invoke_void(&sio::socket::on_close);
@@ -480,7 +480,19 @@ void client_impl::reset_states() {
 }
 
 client_impl::context_ptr client_impl::on_tls_init(connection_hdl /*conn*/) {
-  context_ptr ctx = context_ptr(new asio::ssl::context(m_method));
+
+  context_ptr ctx;
+  switch (m_method) {
+    case sio::method::ssl:
+      ctx = std::make_shared<asio::ssl::context>(asio::ssl::context::method::sslv3);
+      break;
+    case sio::method::tls:
+      ctx = std::make_shared<asio::ssl::context>(asio::ssl::context::method::tlsv12);
+      break;
+    default:
+      ctx = std::make_shared<asio::ssl::context>(asio::ssl::context::method::sslv3);
+      break;
+  }
   std::error_code ec;
   ctx->set_options(asio::ssl::context::default_workarounds | asio::ssl::context::no_sslv2 |
                        asio::ssl::context::single_dh_use,
